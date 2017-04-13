@@ -1,0 +1,113 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode readVersionCode()
+        versionName readVersionName()
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-proguard-rules.pro"
+    }
+
+    libraryVariants.all { variant ->
+        variant.outputs.each { output ->
+            def file = output.outputFile
+            output.outputFile =
+                    new File(file.parent,
+                            file.name.replace("core", "cs-core-sdk").replace(".aar", "-" + defaultConfig.versionName + ".aar"))
+
+        }
+    }
+
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:25.3.0'
+}
+
+// Thanks to https://medium.com/@kmlong1183/using-fastlane-tools-and-android-2e8d76bb138b#.ew4kj88sa
+def readVersionName() {
+    def version = readVersion()
+    return "${version["major"]}.${version["minor"]}.${version["patch"]}"
+}
+
+def readVersionCode() {
+    def version = readVersion()
+    def patch = version["patch"] as int
+    return patch
+}
+
+def readVersion() {
+    def versionFile = new File(project.rootDir, "version.properties")
+    def version = new Properties()
+    def stream
+    try {
+        stream = new FileInputStream(versionFile)
+        version.load(stream)
+    } catch (FileNotFoundException ignore) {
+    } finally {
+        if (stream != null) stream.close()
+    }
+
+    // safety defaults
+    if (!version["major"]) version["major"] = "1"
+    if (!version["minor"]) version["minor"] = "0"
+    if (!version["patch"]) version["patch"] = "0"
+    return version
+}
+
+def incrementBuildVersion(def type = "patch") {
+    def versionFile = new File(project.rootDir, "version.properties")
+    def version = readVersion()
+
+    def major = version["major"] as int
+    def minor = version["minor"] as int
+    def patch = version["patch"] as int
+
+    if (type == "major") {
+        major++
+        minor = 0
+        patch = 0
+    } else if (type == "minor") {
+        minor++
+        patch = 0
+    } else if (type == "patch") {
+        patch++
+    }
+
+    version["major"] = major.toString()
+    version["minor"] = minor.toString()
+    version["patch"] = patch.toString()
+
+    def stream = new FileOutputStream(versionFile)
+    try {
+        version.store(stream, null)
+    } finally {
+        stream.close()
+    }
+
+    println "Version is now: {" + major + "." + minor + "." + patch+"}"
+}
+
+task doMajorVersionIncrement << {
+    println "Incrementing major version..."
+    incrementBuildVersion("major")
+}
+
+task doMinorVersionIncrement << {
+    println "Incrementing minor version..."
+    incrementBuildVersion("minor")
+}
+
+task doPatchVersionIncrement << {
+    println "Incrementing patch version..."
+    incrementBuildVersion("patch")
+}

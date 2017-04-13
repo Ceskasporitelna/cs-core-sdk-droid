@@ -1,0 +1,45 @@
+language: android
+jdk: oraclejdk8
+# Use the Travis Container-Based Infrastructure
+sudo: false
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  bundler: true
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache
+
+env:
+  global:
+    - ANDROID_API_LEVEL=25
+    - ANDROID_BUILD_TOOLS_VERSION=25.0.2
+    - ADB_INSTALL_TIMEOUT=20 # minutes (2 minutes by default)
+
+android:
+  components:
+      - tools
+      - build-tools-$ANDROID_BUILD_TOOLS_VERSION
+      - platform-tools
+      - android-$ANDROID_API_LEVEL
+      - extra-android-m2repository
+
+  licenses:
+      - 'android-sdk-license-.+'
+
+
+before_install:
+  - echo -e "machine github.com\n  login $CI_USER_TOKEN" >> ~/.netrc
+  - rvm install 2.0.0
+  - bundle install
+
+script:
+  - git config --global user.name "CSAS Developers"
+  - git config --global user.email developers@csas.cz
+  - bundle exec fastlane ci
+
+after_success:
+  - sh ./sign.sh

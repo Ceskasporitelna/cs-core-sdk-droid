@@ -1,0 +1,221 @@
+# Customise this file, documentation can be found here:
+# https://github.com/fastlane/fastlane/tree/master/fastlane/docs
+# All available actions: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Actions.md
+# can also be listed using the `fastlane actions` command
+
+# Change the syntax highlighting to Ruby
+# All lines starting with a # are ignored when running `fastlane`
+
+# If you want to automatically update fastlane if a new version is available:
+# update_fastlane
+
+# This is the minimum version number required.
+# Update this, if you use features of a newer version
+
+sdk_name = "CSCoreSDK"
+
+fastlane_version "1.104.0"
+
+default_platform :android
+
+platform :android do
+  before_all do
+    # ENV["SLACK_URL"] = "https://hooks.slack.com/services/..."
+  end
+
+  desc "Runs all the tests"
+  lane :test do
+    output = sh ("cd .. &&  sh ./cs-core-sdk-droid-tests.sh true")
+    if !output.include?("ANDROID TESTS SUCCESSFUL")
+      UI.user_error!("Android tests failed. See gradle output above.")
+    end
+  end
+
+  lane :ci do
+    sh "fastlane test"
+    rocket
+  end
+
+  lane :ci_release do |options|
+    commands = commands_from_commit_msg
+    version = nil
+    version = 'patch' if commands.include?('[release-patch]')
+    version = 'minor' if commands.include?('[release-minor]')
+    version = 'major' if commands.include?('[release-major]')
+    remote_branch = ENV['TRAVIS_BRANCH']
+
+
+    if version
+      UI.message("Releasing #{version} version! (Branch: #{remote_branch})")
+      release({version: version, auto_confirm: true, remote_branch: remote_branch, skip_tests: true})
+    else
+      UI.message("This is a normal CI build. Not doing a release.")
+    end
+  end
+
+
+  desc "Release new version to github repo"
+  lane :release do |options|
+    version = options[:version]
+    auto_confirm = options[:auto_confirm]
+    remote_branch = options[:remote_branch]
+    skip_tests = options[:skip_tests]
+    auto_confirm ||= false
+    skip_tests ||= false
+    should_notify = true
+
+    #######################
+    # Clean repo check
+    #######################
+    ensure_git_status_clean unless auto_confirm #Skip the check during CI build
+
+
+    #######################
+    # Version & Changelog
+    #######################
+    
+    changelog = read_changelog
+    if changelog == nil || changelog.strip == ''
+      UI.user_error!("Empty changelog! - Write the changes into CHANGELOG.md!")
+    end
+
+    if !['minor','major','patch'].include?(version)
+      UI.user_error!("version option must be either `minor`, `major` or `patch`")
+    end
+
+    if(version == "major")
+      gradle_task = "doMajorVersionIncrement"
+    elsif (version == "minor")
+      gradle_task = "doMinorVersionIncrement"
+    else        
+      gradle_task = "doPatchVersionIncrement"
+    end
+
+    version_text = gradle(task: gradle_task)
+
+    # Parse version from Gradle output
+    new_version = version_text[/{(.+)}/, 1]
+    puts new_version
+
+    unless auto_confirm
+      changelog_confirmed = prompt(
+          text: "Confirm the following changelog for new version #{new_version}: \n #{changelog}",
+          boolean: true
+      )
+      UI.user_error!("Aborting! Changelog not confirmed!") if !changelog_confirmed
+    end
+
+
+    #######################
+    # Run tests
+    #######################
+
+    if !skip_tests
+      sh "fastlane test"
+    end
+
+    #######################
+    # Add version number to changelog
+    #######################
+
+    stamp_changelog(
+      section_identifier: "#{new_version}", # Specify identifier to stamp the Unreleased section with
+      git_tag: "" # Specify reference to git tag associated with this section
+    )
+
+    #######################
+    # Commit files
+    #######################
+
+    git_add(path: ["./CHANGELOG.md", "./version.properties"])
+    git_commit(path: ["./CHANGELOG.md", "./version.properties"], message: "Version Bump")
+    add_git_tag(tag: "v#{new_version}", sign: true)
+
+
+    #######################
+    # Push to git remote
+    #######################
+
+    push_to_git_remote(remote_branch: remote_branch)
+
+
+    #######################
+    # Assemble aar files
+    #######################
+
+    gradle(task: "assembleDebug")
+    gradle(task: "assembleRelease")
+
+
+    ########################
+    # Notify People
+    ########################
+
+    unless auto_confirm
+        should_notify = prompt(
+          text: "Should people on slack be notified?",
+          boolean: true
+        )
+    end
+    if should_notify
+      message = "We are releasing new SDK for Droid: `#{sdk_name} #{new_version}`. \n *Changelog:* #{changelog} \n\n <https://github.com/Ceskasporitelna/cs-core-sdk-droid|*Click here*> for details! :rocket:  \n\n Please let us know if you experience any issues during the integration. We are waiting for your feedback either here or in the issues on GitHub."
+      slack(
+        message: message,
+        icon_url: 'http://applifting.cz/img/external/sdk-bot.png',
+        username: 'SDK Bot',
+        channel: "#sdk-dev",  # Optional, by default will post to the default channel configured for the POST URL.
+        success: true,        # Optional, defaults to true.
+        slack_url: ENV['CSAS_SLACK_URL'],
+        default_payloads: []
+      )
+    end
+
+    rocket
+  end
+
+  # desc "Submit a new Beta Build to Crashlytics Beta"
+  # lane :beta do
+  #   gradle(task: "assembleRelease")
+  #   crashlytics
+
+    # sh "your_script.sh"
+    # You can also use other beta testing services here
+  # end
+
+  # desc "Deploy a new version to the Google Play"
+  # lane :deploy do
+  #   gradle(task: "assembleRelease")
+  #   supply
+  # end
+
+  # You can define as many lanes as you want
+
+  after_all do |lane|
+    # This block is called, only if the executed lane was successful
+
+    # slack(
+    #   message: "Successfully deployed new App Update."
+    # )
+  end
+
+  error do |lane, exception|
+    # slack(
+    #   message: exception.message,
+    #   success: false
+    # )
+  end
+end
+
+def commands_from_commit_msg
+    commit_msg = `git log -1 --pretty=%B`
+    commit_msg ||= ""
+    commands = commit_msg.scan(/\[[^\[]*\]/)
+    commands.map {|s| s.downcase}
+end
+
+
+# More information about multiple platforms in fastlane: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Platforms.md
+# All available actions: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Actions.md
+
+# fastlane reports which actions are used
+# No personal data is sent or shared. Learn more at https://github.com/fastlane/enhancer
