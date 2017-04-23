@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.security.PublicKey;
+import java.util.Arrays;
 
 import cz.csas.cscore.client.crypto.CryptoManager;
 import cz.csas.cscore.client.crypto.CryptoManagerImpl;
@@ -20,7 +21,7 @@ public class CryptoManagerTest {
     private final String PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhmgBlAsGkJpbFOuNC7gRbSwmffpf83hC0zTSGE08Mq1xR6cjylZ9tUBV6nS4YlKhsgjr+WuAyKMruPf4b3uyjkZabY7EB1DXV9wzm07+f38PO7jU5Ceo0Rv0LAX/BnKV3uMkXBlQSXPkXMda354qmu7DUD8JjbJTjcpBTRhdy5r0guTC+pjKfdPZM2eDqN3fClaHtLsn4YTI64g1hV18siJxelyXT8EeQGVOfs4ojloieRxqGlrJDQORakHW+4WECG4eWkd8r6VPWl6Ycnvx3Fh0apOZiE1MrqD6ztnxaC74pdAXrhImrIuidccMWKEIorcxJ0dNm5KqZUi66v3ZPwIDAQAB";
     private final String PASSWORD = "unbreakablePassword";
     private final String SALT = "unpredictableSalt";
-    private final byte[] ENCRYPTION_KEY = new byte[32];
+    private final byte[] ENCRYPTION_KEY = new byte[16];
     private CryptoManager cryptoManager;
 
     @Before
@@ -33,13 +34,13 @@ public class CryptoManagerTest {
     public void testEncryptAES() {
         // CS Core does not use initialization vector
         String AESHash = cryptoManager.encodeBase64(cryptoManager.encryptAES(PASSWORD, ENCRYPTION_KEY, null));
-        assertEquals("/Jy0PYB8vYbW7RQHLggw8q9tpilid7zuwLdq0vPKXH0=", AESHash);
+        assertEquals("NQIrlUdWs2kKaNr2EB3Usn3N5iN2xFUr8C/5kUaQW28=", AESHash);
     }
 
     @Test
     public void testDecryptAES() {
         String AESHash = cryptoManager.encodeBase64(cryptoManager.encryptAES(PASSWORD, ENCRYPTION_KEY, null));
-        assertEquals("/Jy0PYB8vYbW7RQHLggw8q9tpilid7zuwLdq0vPKXH0=", AESHash);
+        assertEquals("NQIrlUdWs2kKaNr2EB3Usn3N5iN2xFUr8C/5kUaQW28=", AESHash);
         String password = cryptoManager.decryptAES(cryptoManager.decodeBase64(AESHash), ENCRYPTION_KEY, null);
         assertEquals(PASSWORD, password);
     }
