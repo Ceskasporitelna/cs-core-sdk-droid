@@ -5,7 +5,7 @@
       "uploadPattern": "docs/$1"
     },
     {
-      "includePattern": "./core/build/outputs/aar/(release)",
+      "includePattern": "./core/build/outputs/aar/(cs-core-sdk-release-.*?.aar)",
       "uploadPattern": "$1"
     },
     {
