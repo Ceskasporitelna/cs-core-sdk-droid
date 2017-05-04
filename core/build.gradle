@@ -42,6 +42,42 @@ dependencies {
 group = 'cz.csas'
 version = readVersionName()
 
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+
+                // Add your description here
+                // name 'cz.csas.core'
+                description = 'Core SDK project powered by Ceska Sporitelna a.s.'
+                url 'https://github.com/Ceskasporitelna/cs-core-sdk-droid'
+
+                // Set your license
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'hauseja3'
+                        name 'Jan Hauser'
+                        email 'jan.hauser@applifting.cz'
+                    }
+                }
+                scm {
+                    connection 'https://github.com/Ceskasporitelna/cs-core-sdk-droid.git'
+                    developerConnection 'https://github.com/Ceskasporitelna/cs-core-sdk-droid.git'
+                    url 'https://github.com/Ceskasporitelna/cs-core-sdk-droid'
+                }
+            }
+        }
+    }
+}
+
 // Thanks to https://medium.com/@kmlong1183/using-fastlane-tools-and-android-2e8d76bb138b#.ew4kj88sa
 
 def readVersionName() {
@@ -110,7 +146,7 @@ def incrementBuildVersion(def type = "patch") {
 
     def descriptorFile = new File(project.rootDir, "descriptor.json")
     def versionName = major + "." + minor + "." + patch
-    def path = "cz/csas/core/" + versionName + "/";
+    def path = "cz/csas/cs-core-sdk/" + versionName + "/";
 
     def descriptor = new JsonSlurper().parse(descriptorFile)
 

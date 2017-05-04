@@ -2,20 +2,20 @@
   "files": [
     {
       "includePattern": "./core/build/libs/(.*)",
-      "uploadPattern": "cz/csas/core/1.0.0/$1"
+      "uploadPattern": "cz/csas/cs-core-sdk/1.0.0/$1"
     },
     {
       "includePattern": "./core/build/outputs/aar/(cs-core-sdk-release-.*?.aar)",
-      "uploadPattern": "cz/csas/core/1.0.0/cs-core-sdk-1.0.0.aar"
+      "uploadPattern": "cz/csas/cs-core-sdk/1.0.0/cs-core-sdk-1.0.0.aar"
     },
     {
       "includePattern": "./core/build/poms/(.*)",
-      "uploadPattern": "cz/csas/core/1.0.0/cs-core-sdk-1.0.0.pom"
+      "uploadPattern": "cz/csas/cs-core-sdk/1.0.0/cs-core-sdk-1.0.0.pom"
     }
   ],
   "package": {
     "repo": "maven",
-    "name": "cz.csas.core",
+    "name": "cs-core-sdk",
     "subject": "ceskasporitelna",
     "desc": "I was pushed completely automatically",
     "website_url": "https://github.com/Ceskasporitelna/cs-core-sdk-droid",

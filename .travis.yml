@@ -44,13 +44,16 @@ script:
 after_success:
   - sh ./sign.sh
 
+# bintray example
+# https://techdev.de/how-to-publish-a-kotlin-library-to-bintray-using-gradle-and-travis-ci/
+# https://inthecheesefactory.com/blog/how-to-upload-library-to-jcenter-maven-central-as-dependency/en
 
 before_deploy: "./gradlew install"
 
 deploy:
   provider: bintray
   file: ./descriptor.json
-  user: "ceska-sporitelna"
-  key: $BINTRAY_TOKEN
+  user: $BINTRAY_USER
+  key: $BINTRAY_API_KEY
   on:
       all_branches: true
