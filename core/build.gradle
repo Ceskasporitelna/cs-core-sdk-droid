@@ -39,7 +39,7 @@ dependencies {
 
 // maven pom specs
 
-group = 'cz.csas.lockerui'
+group = 'cz.csas.cscore'
 version = readVersionName()
 
 // Thanks to https://medium.com/@kmlong1183/using-fastlane-tools-and-android-2e8d76bb138b#.ew4kj88sa
