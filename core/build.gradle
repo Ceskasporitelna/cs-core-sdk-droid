@@ -39,7 +39,7 @@ dependencies {
 
 // maven pom specs
 
-group = 'cz.csas.cscore'
+group = 'ceskasporitelna'
 version = readVersionName()
 
 // Thanks to https://medium.com/@kmlong1183/using-fastlane-tools-and-android-2e8d76bb138b#.ew4kj88sa
@@ -110,11 +110,17 @@ def incrementBuildVersion(def type = "patch") {
 
     def descriptorFile = new File(project.rootDir, "descriptor.json")
     def versionName = major + "." + minor + "." + patch
+    def path = "cz/csas/core/" + versionName + "/";
+
     def descriptor = new JsonSlurper().parse(descriptorFile)
 
     descriptor.version.name = versionName
     descriptor.version.vcs_tag = versionName
     descriptor.version.released = new Date().format('yyyy-MM-dd')
+
+    descriptor.files[0].uploadPattern = path + "\$1";
+    descriptor.files[1].uploadPattern = path + "cs-core-sdk-" + versionName + ".aar";
+    descriptor.files[2].uploadPattern = path + "cs-core-sdk-" + versionName + ".pom";
 
     descriptorFile.write(new JsonBuilder(descriptor).toPrettyString())
 
@@ -139,6 +145,7 @@ task doPatchVersionIncrement << {
 // generate the javadoc and sources https://code.tutsplus.com/tutorials/creating-and-publishing-an-android-library--cms-24582#
 
 task sourcesJar(type: Jar) {
+    baseName = "cs-core-sdk"
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
 }
@@ -150,6 +157,7 @@ task javadoc(type: Javadoc) {
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
+    baseName = "cs-core-sdk"
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
