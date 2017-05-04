@@ -43,3 +43,14 @@ script:
 
 after_success:
   - sh ./sign.sh
+
+
+before_deploy: "./gradlew install"
+
+deploy:
+  provider: bintray
+  file: ./descriptor.json
+  user: "ceska-sporitelna"
+  key: $BINTRAY_TOKEN
+  on:
+      all_branches: true
