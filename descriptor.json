@@ -17,7 +17,7 @@
     "repo": "maven",
     "name": "cs-core-sdk",
     "subject": "ceskasporitelna",
-    "desc": "I was pushed completely automatically",
+    "desc": "Core SDK for Android by Ceska Sporitelna a.s.",
     "website_url": "https://github.com/Ceskasporitelna/cs-core-sdk-droid",
     "issue_tracker_url": "https://github.com/Ceskasporitelna/cs-core-sdk-droid/issues",
     "vcs_url": "https://github.com/Ceskasporitelna/cs-core-sdk-droid.git",

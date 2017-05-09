@@ -55,5 +55,3 @@ deploy:
   file: ./descriptor.json
   user: $BINTRAY_USER
   key: $BINTRAY_API_KEY
-  on:
-      all_branches: true
