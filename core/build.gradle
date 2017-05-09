@@ -1,4 +1,8 @@
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
+
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion 25
@@ -33,7 +37,49 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.0'
 }
 
+// maven pom specs
+
+group = 'cz.csas'
+version = readVersionName()
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+
+                // Add your description here
+                // name 'cz.csas.core'
+                description = 'Core SDK project powered by Ceska Sporitelna a.s.'
+                url 'https://github.com/Ceskasporitelna/cs-core-sdk-droid'
+
+                // Set your license
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'hauseja3'
+                        name 'Jan Hauser'
+                        email 'jan.hauser@applifting.cz'
+                    }
+                }
+                scm {
+                    connection 'https://github.com/Ceskasporitelna/cs-core-sdk-droid.git'
+                    developerConnection 'https://github.com/Ceskasporitelna/cs-core-sdk-droid.git'
+                    url 'https://github.com/Ceskasporitelna/cs-core-sdk-droid'
+                }
+            }
+        }
+    }
+}
+
 // Thanks to https://medium.com/@kmlong1183/using-fastlane-tools-and-android-2e8d76bb138b#.ew4kj88sa
+
 def readVersionName() {
     def version = readVersion()
     return "${version["major"]}.${version["minor"]}.${version["patch"]}"
@@ -65,7 +111,6 @@ def readVersion() {
 }
 
 def incrementBuildVersion(def type = "patch") {
-    def versionFile = new File(project.rootDir, "version.properties")
     def version = readVersion()
 
     def major = version["major"] as int
@@ -87,6 +132,9 @@ def incrementBuildVersion(def type = "patch") {
     version["minor"] = minor.toString()
     version["patch"] = patch.toString()
 
+    // write into version.properties
+
+    def versionFile = new File(project.rootDir, "version.properties")
     def stream = new FileOutputStream(versionFile)
     try {
         version.store(stream, null)
@@ -94,7 +142,25 @@ def incrementBuildVersion(def type = "patch") {
         stream.close()
     }
 
-    println "Version is now: {" + major + "." + minor + "." + patch+"}"
+    // fix descriptor.json bintray file version
+
+    def descriptorFile = new File(project.rootDir, "descriptor.json")
+    def versionName = major + "." + minor + "." + patch
+    def path = "cz/csas/cs-core-sdk/" + versionName + "/";
+
+    def descriptor = new JsonSlurper().parse(descriptorFile)
+
+    descriptor.version.name = versionName
+    descriptor.version.vcs_tag = versionName
+    descriptor.version.released = new Date().format('yyyy-MM-dd')
+
+    descriptor.files[0].uploadPattern = path + "\$1";
+    descriptor.files[1].uploadPattern = path + "cs-core-sdk-" + versionName + ".aar";
+    descriptor.files[2].uploadPattern = path + "cs-core-sdk-" + versionName + ".pom";
+
+    descriptorFile.write(new JsonBuilder(descriptor).toPrettyString())
+
+    println "Version is now: {" + versionName + "}"
 }
 
 task doMajorVersionIncrement << {
@@ -110,4 +176,29 @@ task doMinorVersionIncrement << {
 task doPatchVersionIncrement << {
     println "Incrementing patch version..."
     incrementBuildVersion("patch")
+}
+
+// generate the javadoc and sources https://code.tutsplus.com/tutorials/creating-and-publishing-an-android-library--cms-24582#
+
+task sourcesJar(type: Jar) {
+    baseName = "cs-core-sdk"
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    failOnError false
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    baseName = "cs-core-sdk"
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
 }

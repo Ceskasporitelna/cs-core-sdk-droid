@@ -138,15 +138,6 @@ platform :android do
 
     push_to_git_remote(remote_branch: remote_branch)
 
-
-    #######################
-    # Assemble aar files
-    #######################
-
-    gradle(task: "assembleDebug")
-    gradle(task: "assembleRelease")
-
-
     ########################
     # Notify People
     ########################
