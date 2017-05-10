@@ -14,33 +14,31 @@
 # CoreSDK Instalation
 You would normally use CoreSDK through other CSAS SDKs. If you want to use Locker without the UI or develop your app against the bare bones, you can install CoreSDK directly.
 
-**IMPORTANT!** You need to have your SSH keys registered with the GitHub since this repository is private.
-
 ## Install
-You can install CoreSDK using the following git and gradle settings.
+You can install CoreSDK using the following gradle settings.
 
-1. Navigate to your git configured project repository and process this command to add CoreSDK as a submodule:
-```
-    git submodule add https://github.com/Ceskasporitelna/cs-core-sdk-droid.git your_lib_folder/cs-core-sdk-droid
-```
-
-2. Insert these two lines into your project settings.gradle file to include your submodule:
+1. Check your project build.gradle file that it contains `JCenter` repository:
 ```gradle
-    include ':core'
-    project (':core').projectDir = new File(settingsDir, 'your_lib_folder/cs-core-sdk-droid/core')
+    allprojects {
+        repositories {
+            ...
+            jcenter()
+            ...
+        }
+    }
 ```
 
-3. Insert this line into your module build.gradle file to compile your submodule:
+2. Insert this line into your module build.gradle file to compile CoreSDK:
 ```gradle
     dependencies {
         ...
-        compile project(':core')
+        compile 'cz.csas:cs-core-sdk:1.1.0@aar'
         ...
     }
 ```
 
 # Usage
-After you've installed the SDK using git submodules you will be able to use CoreSDK in your project.
+After you've installed the SDK you will be able to use CoreSDK in your project.
 
 ## Configuration
 Before using CoreSDK in your application, you need to initialize it by providing it your WebApiKey.
