@@ -127,8 +127,8 @@ platform :android do
     # Commit files
     #######################
 
-    git_add(path: ["./CHANGELOG.md", "./version.properties"])
-    git_commit(path: ["./CHANGELOG.md", "./version.properties"], message: "Version Bump")
+    git_add(path: ["./CHANGELOG.md", "./version.properties", "./descriptor.json"])
+    git_commit(path: ["./CHANGELOG.md", "./version.properties", "./descriptor.json"], message: "Version Bump")
     add_git_tag(tag: "v#{new_version}", sign: true)
 
 

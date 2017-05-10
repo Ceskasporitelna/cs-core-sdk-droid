@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## Fixed
+
+- Clean styles resource file
+- Fix travis bintray descriptor file
+
 ## [1.1.0] - 2017-05-10
 
 ## Changed
