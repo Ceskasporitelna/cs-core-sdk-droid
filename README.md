@@ -11,7 +11,7 @@
 - Gradle 2.8+
 - Android Studio 1.5+
 
-# CoreSDK Instalation
+# CoreSDK Installation
 You would normally use CoreSDK through other CSAS SDKs. If you want to use Locker without the UI or develop your app against the bare bones, you can install CoreSDK directly.
 
 ## Install
@@ -28,11 +28,11 @@ You can install CoreSDK using the following gradle settings.
     }
 ```
 
-2. Insert this line into your module build.gradle file to compile CoreSDK:
+2. Insert this line into your module build.gradle file to compile CoreSDK (change x.y.z to the version you want to use):
 ```gradle
     dependencies {
         ...
-        compile 'cz.csas:cs-core-sdk:1.1.0@aar'
+        compile 'cz.csas:cs-core-sdk:x.y.z@aar'
         ...
     }
 ```

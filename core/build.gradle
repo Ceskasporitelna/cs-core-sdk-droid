@@ -50,7 +50,7 @@ install {
                 packaging 'aar'
 
                 // Add your description here
-                // name 'cz.csas.core'
+                name 'cs-core-sdk'
                 description = 'Core SDK project powered by Ceska Sporitelna a.s.'
                 url 'https://github.com/Ceskasporitelna/cs-core-sdk-droid'
 

@@ -25,6 +25,7 @@ platform :android do
 
   desc "Runs all the tests"
   lane :test do
+    gradle(task: "clean")
     output = sh ("cd .. &&  sh ./cs-core-sdk-droid-tests.sh true")
     if !output.include?("ANDROID TESTS SUCCESSFUL")
       UI.user_error!("Android tests failed. See gradle output above.")

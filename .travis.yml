@@ -48,7 +48,8 @@ after_success:
 # https://techdev.de/how-to-publish-a-kotlin-library-to-bintray-using-gradle-and-travis-ci/
 # https://inthecheesefactory.com/blog/how-to-upload-library-to-jcenter-maven-central-as-dependency/en
 
-before_deploy: "./gradlew install"
+before_deploy:
+  - ./gradlew install
 
 deploy:
   provider: bintray
