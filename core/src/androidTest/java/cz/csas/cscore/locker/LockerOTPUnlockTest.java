@@ -6,9 +6,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import cz.csas.cscore.LockerTest;
-import cz.csas.cscore.client.rest.Callback;
-import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.Constants;
 import cz.csas.cscore.judge.JudgeUtils;
 
@@ -48,7 +48,7 @@ public class LockerOTPUnlockTest extends LockerTest {
     @Test
     public void testOneTimePassword(){
 
-        mLocker.unlockWithOneTimePassword(new Callback<RegistrationOrUnlockResponse>() {
+        mLocker.unlockWithOneTimePassword(new CsCallback<RegistrationOrUnlockResponse>() {
             @Override
             public void success(RegistrationOrUnlockResponse registrationOrUnlockResponse, Response response) {
                 mUnlockResponse = registrationOrUnlockResponse;
@@ -56,7 +56,7 @@ public class LockerOTPUnlockTest extends LockerTest {
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 mOTPUnlockSignal.countDown();
             }
         });

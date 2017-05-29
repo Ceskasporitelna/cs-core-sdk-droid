@@ -18,6 +18,7 @@ import cz.csas.cscore.client.rest.android.BackgroundQueue;
 import cz.csas.cscore.client.rest.android.BackgroundThreadExecutor;
 import cz.csas.cscore.client.rest.android.MainThreadExecutor;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.mime.CsCallback;
 import cz.csas.cscore.error.CsLockerError;
 import cz.csas.cscore.logger.LogLevel;
 import cz.csas.cscore.logger.LogManager;
@@ -46,7 +47,7 @@ class LockerImpl implements Locker {
     private LogManager mLogManager;
     private Context mContext;
     private CsJson mCsJson;
-    private Callback<RegistrationOrUnlockResponse> mCallbackRegister;
+    private CsCallback<RegistrationOrUnlockResponse> mCallbackRegister;
     private CallbackBasic<LockerRegistrationProcess> mCallbackOAuth;
     private BackgroundThreadExecutor mBackgroundThreadExecutor;
     private BackgroundQueue mBackgroundQueue = new BackgroundQueue("cs-core-background-queue");
@@ -88,9 +89,9 @@ class LockerImpl implements Locker {
     }
 
     @Override
-    public void register(Context context, CallbackBasic<LockerRegistrationProcess> callbackWithReturn, Callback<RegistrationOrUnlockResponse> callback) {
+    public void register(Context context, CallbackBasic<LockerRegistrationProcess> callbackWithReturn, CsCallback<RegistrationOrUnlockResponse> callback) {
         if (getStatus().getState() != State.USER_UNREGISTERED)
-            throw new CsLockerError(CsLockerError.Kind.REGISTRATION_FAILED);
+            callback.failure(new CsLockerError(CsLockerError.Kind.REGISTRATION_FAILED));
         else {
             mKeychainManager.storeLocalEK(mCryptoManager.encodeSha256(getDFP(), mCryptoManager.generateRandomString()));
             mCallbackRegister = callback;
@@ -149,18 +150,18 @@ class LockerImpl implements Locker {
                 }
             });
         } else
-            throw new CsLockerError(CsLockerError.Kind.WRONG_OAUTH2_URL);
+            mCallbackRegister.failure(new CsLockerError(CsLockerError.Kind.WRONG_OAUTH2_URL));
     }
 
     @Override
-    public void unregister(final CallbackBasic<LockerStatus> callback) {
+    public void unregister(final CsCallback<LockerStatus> callback) {
         if (getStatus().getState() != State.USER_UNREGISTERED) {
             UnregisterRequestJson unregisterRequestJson = new UnregisterRequestJson(mKeychainManager.retrieveCID(), getDFP(), getNonce());
             ((LockerRestService) mLockerClient.getService()).unregister(new LockerRequest(encryptSession(), encryptData(unregisterRequestJson)), new Callback<EmptyResponse>() {
                 @Override
                 public void success(EmptyResponse emptyResponse, Response response) {
                     if (mTestFlag)
-                        callback.success(getStatus());
+                        callback.success(getStatus(), response);
                 }
 
                 @Override
@@ -169,20 +170,20 @@ class LockerImpl implements Locker {
             });
             unregisterUserInternally();
             if (!mTestFlag)
-                callback.success(getStatus());
+                callback.success(getStatus(), null);
             mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Unregistration was successful"), LogLevel.INFO);
         } else
-            throw new CsLockerError(CsLockerError.Kind.UNREGISTRATION_FAILED);
+            callback.failure(new CsLockerError(CsLockerError.Kind.UNREGISTRATION_FAILED));
     }
 
     @Override
-    public void unlock(final String password, final Callback<RegistrationOrUnlockResponse> callback) {
+    public void unlock(final String password, final CsCallback<RegistrationOrUnlockResponse> callback) {
         mBackgroundQueue.addToQueue(new Runnable() {
             @Override
             public void run() {
                 String passwordPom = password;
                 if (getStatus().getState() == State.USER_UNREGISTERED)
-                    throw new CsLockerError(CsLockerError.Kind.UNLOCK_FAILED);
+                    callback.failure(new CsLockerError(CsLockerError.Kind.UNLOCK_FAILED));
                 if (getStatus().getLockType() == LockType.NONE)
                     passwordPom = mKeychainManager.retrieveNoLockPassword();
                 UnlockRequestJson unlockRequestJson = new UnlockRequestJson(mKeychainManager.retrieveCID(), mCryptoManager.encodeSha256(passwordPom, getDFP() + getRandom()), getDFP(), getNonce());
@@ -253,12 +254,12 @@ class LockerImpl implements Locker {
     }
 
     @Override
-    public void unlockWithOneTimePassword(final Callback<RegistrationOrUnlockResponse> callback) {
+    public void unlockWithOneTimePassword(final CsCallback<RegistrationOrUnlockResponse> callback) {
         mBackgroundQueue.addToQueue(new Runnable() {
             @Override
             public void run() {
                 if (getStatus().getState() == State.USER_UNREGISTERED)
-                    throw new CsLockerError(CsLockerError.Kind.OTP_UNLOCK_FAILED);
+                    callback.failure(new CsLockerError(CsLockerError.Kind.OTP_UNLOCK_FAILED));
                 String oneTimePassword = mCryptoManager.generatePassword(mKeychainManager.retrieveCID() + getDFP(), 4, mCryptoManager.decodeBase64(mKeychainManager.retrieveOneTimePasswordKey()), getTime());
                 OneTimePasswordUnlockRequestJson oneTimePasswordUnlockRequestJson = new OneTimePasswordUnlockRequestJson(mKeychainManager.retrieveCID(), oneTimePassword, getDFP(), getNonce());
                 ((LockerRestService) mLockerClient.getService()).unlockWithOneTimePassword(new LockerRequest(encryptSession(), encryptData(oneTimePasswordUnlockRequestJson)), new LockerCallback() {
@@ -302,7 +303,7 @@ class LockerImpl implements Locker {
     }
 
     @Override
-    public void lock(final CallbackBasic<LockerStatus> lockerStatusCallback) {
+    public void lock(final CsCallback<LockerStatus> lockerStatusCallback) {
         mBackgroundQueue.addToQueue(new Runnable() {
             @Override
             public void run() {
@@ -310,16 +311,16 @@ class LockerImpl implements Locker {
                     mKeychainManager.clearVolatileKeys();
                     mStatusManager.setIsVerifiedOffline(false);
                     mStatusManager.setState();
-                    executeBasicSuccessOnMainThreadAndFreeQueue(lockerStatusCallback, getStatus());
+                    executeSuccessOnMainThreadAndFreeQueue(lockerStatusCallback, getStatus(), null);
                     mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "LOCKED", "Lock was successful."), LogLevel.INFO);
                 } else
-                    throw new CsLockerError(CsLockerError.Kind.LOCK_FAILED);
+                    lockerStatusCallback.failure(new CsLockerError(CsLockerError.Kind.LOCK_FAILED));
             }
         });
     }
 
     @Override
-    public void changePassword(String password, final Password newPassword, final Callback<PasswordResponse> callback) {
+    public void changePassword(String password, final Password newPassword, final CsCallback<PasswordResponse> callback) {
         if (getStatus().getState() == State.USER_UNLOCKED) {
             if (getStatus().getLockType() == LockType.NONE)
                 password = mKeychainManager.retrieveNoLockPassword();
@@ -362,7 +363,7 @@ class LockerImpl implements Locker {
                 }
             });
         } else
-            throw new CsLockerError(CsLockerError.Kind.PASSWORD_CHANGE_FAILED);
+            callback.failure(new CsLockerError(CsLockerError.Kind.PASSWORD_CHANGE_FAILED));
     }
 
     @Override
@@ -387,7 +388,7 @@ class LockerImpl implements Locker {
     }
 
     @Override
-    public void refreshToken(Callback<LockerStatus> callback) {
+    public void refreshToken(CsCallback<LockerStatus> callback) {
         CoreSDK.getInstance().refreshToken(mKeychainManager.retrieveRefreshToken(), callback);
     }
 
@@ -501,7 +502,7 @@ class LockerImpl implements Locker {
                 && mKeychainManager.retrieveNumOfOfflineAuthAttempts() < OFFLINE_AUTH_MAX_ATTEMPTS;
     }
 
-    private void unlockOffline(final String passwordString, final Callback<RegistrationOrUnlockResponse> callback, final CsRestError error) {
+    private void unlockOffline(final String passwordString, final CsCallback<RegistrationOrUnlockResponse> callback, final CsRestError error) {
         mBackgroundThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -526,7 +527,7 @@ class LockerImpl implements Locker {
         });
     }
 
-    private void returnUnlockOffline(final boolean result, final Callback<RegistrationOrUnlockResponse> callback, final CsRestError error) {
+    private void returnUnlockOffline(final boolean result, final CsCallback<RegistrationOrUnlockResponse> callback, final CsRestError error) {
         if (result) {
             mStatusManager.setIsVerifiedOffline(true);
             mStatusManager.setState();
@@ -641,7 +642,7 @@ class LockerImpl implements Locker {
         }
     }
 
-    private void executeSuccessOnMainThreadAndFreeQueue(final Callback callback, final Object object, final Response response) {
+    private void executeSuccessOnMainThreadAndFreeQueue(final CsCallback callback, final Object object, final Response response) {
         mMainThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -651,17 +652,7 @@ class LockerImpl implements Locker {
         });
     }
 
-    private void executeBasicSuccessOnMainThreadAndFreeQueue(final CallbackBasic callback, final Object object) {
-        mMainThreadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                callback.success(object);
-                mBackgroundQueue.onQueueAvailable();
-            }
-        });
-    }
-
-    private void executeFailureOnMainThreadAndFreeQueue(final Callback callback, final CsRestError error) {
+    private void executeFailureOnMainThreadAndFreeQueue(final CsCallback callback, final CsRestError error) {
         mMainThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {

@@ -6,10 +6,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import cz.csas.cscore.LockerTest;
-import cz.csas.cscore.client.rest.Callback;
-import cz.csas.cscore.client.rest.CallbackBasic;
-import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.Constants;
 import cz.csas.cscore.judge.JudgeUtils;
 
@@ -56,16 +55,16 @@ public class LockerUnlockServerErrorTest extends LockerTest {
      * Test.
      */
     @Test
-    public void testUnlockServerError(){
-        mLocker.lock(new CallbackBasic<LockerStatus>() {
+    public void testUnlockServerError() {
+        mLocker.lock(new CsCallback<LockerStatus>() {
             @Override
-            public void success(LockerStatus lockerStatus) {
+            public void success(LockerStatus lockerStatus, Response response) {
                 assertEquals(State.USER_LOCKED, lockerStatus.getState());
                 mLockSignal.countDown();
             }
 
             @Override
-            public void failure() {
+            public void failure(CsSDKError error) {
                 mLockSignal.countDown();
             }
         });
@@ -74,7 +73,7 @@ public class LockerUnlockServerErrorTest extends LockerTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        mLocker.unlock(Constants.PASSWORD_TEST, new Callback<RegistrationOrUnlockResponse>() {
+        mLocker.unlock(Constants.PASSWORD_TEST, new CsCallback<RegistrationOrUnlockResponse>() {
             @Override
             public void success(RegistrationOrUnlockResponse registrationOrUnlockResponse, Response response) {
                 mUnlockResponse = registrationOrUnlockResponse;
@@ -82,7 +81,7 @@ public class LockerUnlockServerErrorTest extends LockerTest {
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 mUnlockSignal.countDown();
             }
         });
@@ -95,7 +94,7 @@ public class LockerUnlockServerErrorTest extends LockerTest {
         }
 
         assertEquals(State.USER_LOCKED, mState);
-        assertEquals(State.USER_LOCKED,mLocker.getStatus().getState());
+        assertEquals(State.USER_LOCKED, mLocker.getStatus().getState());
         assertFalse(mLocker.getStatus().hasAesEncryptionKey());
         assertTrue(mLocker.getStatus().hasOneTimePasswordKey());
     }

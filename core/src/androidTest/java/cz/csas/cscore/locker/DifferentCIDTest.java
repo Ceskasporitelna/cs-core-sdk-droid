@@ -8,10 +8,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import cz.csas.cscore.LockerTest;
-import cz.csas.cscore.client.rest.Callback;
 import cz.csas.cscore.client.rest.CallbackBasic;
-import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.Constants;
 import cz.csas.cscore.judge.JudgeUtils;
 
@@ -66,14 +66,14 @@ public class DifferentCIDTest extends LockerTest {
             public void failure() {
                 mRegisterSignal.countDown();
             }
-        }, new Callback<RegistrationOrUnlockResponse>() {
+        }, new CsCallback<RegistrationOrUnlockResponse>() {
             @Override
             public void success(RegistrationOrUnlockResponse registrationOrUnlockResponse, Response response) {
                 mRegisterSignal.countDown();
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 mRegisterSignal.countDown();
             }
         });
@@ -89,15 +89,15 @@ public class DifferentCIDTest extends LockerTest {
         mCid = mLocker.getStatus().getClientId();
         JudgeUtils.setJudge(mJudgeClient, Constants.X_JUDGE_CASE_HEADER_UNREGISTER, mXJudgeSessionHeader);
 
-        mLocker.unregister(new CallbackBasic<LockerStatus>() {
+        mLocker.unregister(new CsCallback<LockerStatus>() {
 
             @Override
-            public void success(LockerStatus lockerStatus) {
+            public void success(LockerStatus lockerStatus, Response response) {
 
             }
 
             @Override
-            public void failure() {
+            public void failure(CsSDKError error) {
 
             }
         });
@@ -119,14 +119,14 @@ public class DifferentCIDTest extends LockerTest {
             public void failure() {
                 mRegisterSignalSecondUser.countDown();
             }
-        }, new Callback<RegistrationOrUnlockResponse>() {
+        }, new CsCallback<RegistrationOrUnlockResponse>() {
             @Override
             public void success(RegistrationOrUnlockResponse registrationOrUnlockResponse, Response response) {
                 mRegisterSignalSecondUser.countDown();
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 mRegisterSignalSecondUser.countDown();
             }
         });

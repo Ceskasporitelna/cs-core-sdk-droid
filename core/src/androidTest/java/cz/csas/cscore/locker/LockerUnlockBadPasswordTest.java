@@ -6,9 +6,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import cz.csas.cscore.LockerTest;
-import cz.csas.cscore.client.rest.Callback;
-import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.JudgeUtils;
 
 import static junit.framework.Assert.assertEquals;
@@ -51,7 +51,7 @@ public class LockerUnlockBadPasswordTest extends LockerTest {
     @Test
     public void testUnlock(){
 
-        mLocker.unlock(cz.csas.cscore.judge.Constants.PASSWORD_TEST, new Callback<RegistrationOrUnlockResponse>() {
+        mLocker.unlock(cz.csas.cscore.judge.Constants.PASSWORD_TEST, new CsCallback<RegistrationOrUnlockResponse>() {
             @Override
             public void success(RegistrationOrUnlockResponse registrationOrUnlockResponse, Response response) {
                 mUnlockResponse = registrationOrUnlockResponse;
@@ -59,7 +59,7 @@ public class LockerUnlockBadPasswordTest extends LockerTest {
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 mUnlockSignal.countDown();
             }
         });

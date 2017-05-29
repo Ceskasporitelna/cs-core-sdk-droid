@@ -6,10 +6,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import cz.csas.cscore.LockerTest;
-import cz.csas.cscore.client.rest.Callback;
-import cz.csas.cscore.client.rest.CallbackBasic;
-import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.Constants;
 import cz.csas.cscore.judge.JudgeUtils;
 
@@ -56,19 +55,19 @@ public class LockerUnlockDifferentAccessTokenTest extends LockerTest {
 
         final CountDownLatch lockSignal = new CountDownLatch(1);
 
-        mLocker.lock(new CallbackBasic<LockerStatus>() {
+        mLocker.lock(new CsCallback<LockerStatus>() {
             @Override
-            public void success(LockerStatus lockerStatus) {
+            public void success(LockerStatus lockerStatus, Response response) {
                 lockSignal.countDown();
             }
 
             @Override
-            public void failure() {
+            public void failure(CsSDKError error) {
 
             }
         });
 
-        mLocker.unlock(Constants.PASSWORD_TEST, new Callback<RegistrationOrUnlockResponse>() {
+        mLocker.unlock(Constants.PASSWORD_TEST, new CsCallback<RegistrationOrUnlockResponse>() {
             @Override
             public void success(RegistrationOrUnlockResponse registrationOrUnlockResponse, Response response) {
                 mUnlockResponse = registrationOrUnlockResponse;
@@ -76,7 +75,7 @@ public class LockerUnlockDifferentAccessTokenTest extends LockerTest {
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 mUnlockSignal.countDown();
             }
         });
@@ -97,14 +96,14 @@ public class LockerUnlockDifferentAccessTokenTest extends LockerTest {
 
         final CountDownLatch lockSignal2 = new CountDownLatch(1);
 
-        mLocker.lock(new CallbackBasic<LockerStatus>() {
+        mLocker.lock(new CsCallback<LockerStatus>() {
             @Override
-            public void success(LockerStatus lockerStatus) {
+            public void success(LockerStatus lockerStatus, Response response) {
                 lockSignal2.countDown();
             }
 
             @Override
-            public void failure() {
+            public void failure(CsSDKError error) {
 
             }
         });
@@ -119,7 +118,7 @@ public class LockerUnlockDifferentAccessTokenTest extends LockerTest {
         final CountDownLatch secondUnlockSignal = new CountDownLatch(1);
 
         JudgeUtils.setJudge(mJudgeClient, X_JUDGE_CASE_HEADER_UNLOCK_DIFFERENT_ACCESS_TOKEN, mXJudgeSessionHeader);
-        mLocker.unlock(Constants.PASSWORD_TEST, new Callback<RegistrationOrUnlockResponse>() {
+        mLocker.unlock(Constants.PASSWORD_TEST, new CsCallback<RegistrationOrUnlockResponse>() {
             @Override
             public void success(RegistrationOrUnlockResponse registrationOrUnlockResponse, Response response) {
                 mUnlockResponse = registrationOrUnlockResponse;
@@ -127,7 +126,7 @@ public class LockerUnlockDifferentAccessTokenTest extends LockerTest {
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 secondUnlockSignal.countDown();
             }
         });

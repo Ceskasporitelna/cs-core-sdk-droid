@@ -5,9 +5,9 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import cz.csas.cscore.client.rest.Callback;
-import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.Constants;
 import cz.csas.cscore.judge.JudgeUtils;
 import cz.csas.cscore.locker.LockerStatus;
@@ -44,7 +44,7 @@ public class RefreshAccessTokenTest extends LockerTest {
      */
     @Test
     public void testRefreshToken() {
-        mLocker.refreshToken(new Callback<LockerStatus>() {
+        mLocker.refreshToken(new CsCallback<LockerStatus>() {
             @Override
             public void success(LockerStatus lockerStatus, Response response) {
                 mLockerStatus = lockerStatus;
@@ -52,7 +52,7 @@ public class RefreshAccessTokenTest extends LockerTest {
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 mRefreshSignal.countDown();
             }
         });

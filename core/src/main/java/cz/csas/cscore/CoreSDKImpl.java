@@ -8,9 +8,9 @@ import cz.csas.cscore.client.WebApiConfiguration;
 import cz.csas.cscore.client.WebApiConfigurationImpl;
 import cz.csas.cscore.client.crypto.CryptoManager;
 import cz.csas.cscore.client.crypto.CryptoManagerImpl;
-import cz.csas.cscore.client.rest.Callback;
 import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.mime.CsCallback;
 import cz.csas.cscore.error.CsCoreError;
 import cz.csas.cscore.error.CsLockerError;
 import cz.csas.cscore.locker.AccessToken;
@@ -163,9 +163,9 @@ class CoreSDKImpl extends CoreSDK {
 
 
     @Override
-    public void refreshToken(String refreshToken, final Callback<LockerStatus> callback) {
+    public void refreshToken(String refreshToken, final CsCallback<LockerStatus> callback) {
         if (refreshToken == null)
-            throw new CsLockerError(CsLockerError.Kind.REFRESH_TOKEN_FAILED);
+            callback.failure(new CsLockerError(CsLockerError.Kind.REFRESH_TOKEN_FAILED));
         else {
             CoreClient coreClient = new CoreClient(mWebApiConfiguration);
             coreClient.setGlobalHeaders(getHeaders());

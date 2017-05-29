@@ -6,7 +6,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import cz.csas.cscore.LockerTest;
-import cz.csas.cscore.client.rest.CallbackBasic;
+import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.Constants;
 import cz.csas.cscore.judge.JudgeUtils;
 
@@ -43,16 +45,16 @@ public class LockerUnregistrationTest extends LockerTest {
     @Test
     public void testUnregistration() {
 
-        mLocker.unregister(new CallbackBasic<LockerStatus>(){
+        mLocker.unregister(new CsCallback<LockerStatus>() {
 
             @Override
-            public void success(LockerStatus lockerStatus) {
+            public void success(LockerStatus lockerStatus, Response response) {
                 mState = lockerStatus.getState();
                 mUnregisterSignal.countDown();
             }
 
             @Override
-            public void failure() {
+            public void failure(CsSDKError error) {
 
             }
         });
