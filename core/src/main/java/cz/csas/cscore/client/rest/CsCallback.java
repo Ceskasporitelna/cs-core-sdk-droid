@@ -1,4 +1,4 @@
-package cz.csas.cscore.client.rest.mime;
+package cz.csas.cscore.client.rest;
 
 import cz.csas.cscore.client.rest.client.Response;
 import cz.csas.cscore.error.CsSDKError;

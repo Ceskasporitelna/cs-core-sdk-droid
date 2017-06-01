@@ -1,11 +1,11 @@
 package cz.csas.cscore.locker;
 
 import cz.csas.cscore.CoreSDK;
-import cz.csas.cscore.client.rest.Callback;
 import cz.csas.cscore.client.rest.CallbackWebApi;
-import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.CsCallback;
 import cz.csas.cscore.error.CsAccessTokenProviderError;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.logger.LogLevel;
 import cz.csas.cscore.logger.LogManager;
 import cz.csas.cscore.utils.StringUtils;
@@ -67,14 +67,14 @@ public class LockerAccessTokenProvider implements AccessTokenProvider {
 
     @Override
     public void refreshAccessToken(final CallbackWebApi<AccessToken> callback) {
-        locker.refreshToken(new Callback<LockerStatus>() {
+        locker.refreshToken(new CsCallback<LockerStatus>() {
             @Override
             public void success(LockerStatus lockerStatus, Response response) {
                 callback.success(locker.getAccessToken());
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 callback.failure(new CsAccessTokenProviderError(CsAccessTokenProviderError.Kind.NOT_AVAILABLE));
             }
         });

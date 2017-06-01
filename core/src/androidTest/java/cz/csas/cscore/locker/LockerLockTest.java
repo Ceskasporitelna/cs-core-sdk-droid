@@ -6,10 +6,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import cz.csas.cscore.LockerTest;
-import cz.csas.cscore.client.rest.Callback;
-import cz.csas.cscore.client.rest.CallbackBasic;
-import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.CsCallback;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.Constants;
 import cz.csas.cscore.judge.JudgeUtils;
 
@@ -45,14 +44,14 @@ public class LockerLockTest extends LockerTest {
         JudgeUtils.setJudge(mJudgeClient, Constants.X_JUDGE_CASE_HEADER_REGISTER, mXJudgeSessionHeader);
         LockerUtils.lockerRegister(mLocker);
         JudgeUtils.setJudge(mJudgeClient, Constants.X_JUDGE_CASE_HEADER_UNLOCK, mXJudgeSessionHeader);
-        mLocker.unlock(Constants.PASSWORD_TEST, new Callback<RegistrationOrUnlockResponse>() {
+        mLocker.unlock(Constants.PASSWORD_TEST, new CsCallback<RegistrationOrUnlockResponse>() {
             @Override
             public void success(RegistrationOrUnlockResponse registrationOrUnlockResponse, Response response) {
                 mUnlockSignal.countDown();
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 mUnlockSignal.countDown();
             }
         });
@@ -68,14 +67,14 @@ public class LockerLockTest extends LockerTest {
     @Test
     public void testLock() {
 
-        mLocker.lock(new CallbackBasic<LockerStatus>() {
+        mLocker.lock(new CsCallback<LockerStatus>() {
             @Override
-            public void success(LockerStatus lockerStatus) {
+            public void success(LockerStatus lockerStatus, Response response) {
                 mLockSignal.countDown();
             }
 
             @Override
-            public void failure() {
+            public void failure(CsSDKError error) {
                 mLockSignal.countDown();
             }
         });

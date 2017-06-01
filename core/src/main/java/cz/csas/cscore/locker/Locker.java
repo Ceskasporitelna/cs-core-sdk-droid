@@ -2,8 +2,8 @@ package cz.csas.cscore.locker;
 
 import android.content.Context;
 
-import cz.csas.cscore.client.rest.Callback;
 import cz.csas.cscore.client.rest.CallbackBasic;
+import cz.csas.cscore.client.rest.CsCallback;
 
 /**
  * The interface Locker.
@@ -36,7 +36,7 @@ public interface Locker {
      * @param callbackWithReturn the callback with return
      * @param callback           the callback
      */
-    public void register(Context context, CallbackBasic<LockerRegistrationProcess> callbackWithReturn, Callback<RegistrationOrUnlockResponse> callback);
+    public void register(Context context, CallbackBasic<LockerRegistrationProcess> callbackWithReturn, CsCallback<RegistrationOrUnlockResponse> callback);
 
     /**
      * Unregister. This method is quite simple. It will unregister the registered user and returns
@@ -44,7 +44,7 @@ public interface Locker {
      *
      * @param callback the callback
      */
-    public void unregister(CallbackBasic<LockerStatus> callback);
+    public void unregister(CsCallback<LockerStatus> callback);
 
     /**
      * Unlock. This method allow you to login the user. You need to pass through his password and if
@@ -55,7 +55,7 @@ public interface Locker {
      * @param password the password
      * @param callback the callback
      */
-    public void unlock(String password, Callback<RegistrationOrUnlockResponse> callback);
+    public void unlock(String password, CsCallback<RegistrationOrUnlockResponse> callback);
 
     /**
      * Unlock with one time password. This method will unlock you as the previous one, but the difference
@@ -64,14 +64,14 @@ public interface Locker {
      *
      * @param callback the callback
      */
-    public void unlockWithOneTimePassword(Callback<RegistrationOrUnlockResponse> callback);
+    public void unlockWithOneTimePassword(CsCallback<RegistrationOrUnlockResponse> callback);
 
     /**
      * Lock the user. This method does not communicate with server.
      *
      * @param callback the callback
      */
-    public void lock(CallbackBasic<LockerStatus> callback);
+    public void lock(CsCallback<LockerStatus> callback);
 
     /**
      * Change password method allows you to change users password. You will pass through old password,
@@ -81,7 +81,7 @@ public interface Locker {
      * @param newPassword the new password
      * @param callback    the callback
      */
-    public void changePassword(String password, Password newPassword, Callback<PasswordResponse> callback);
+    public void changePassword(String password, Password newPassword, CsCallback<PasswordResponse> callback);
 
     /**
      * Process url boolean is method described with register method. It verify your received url and
@@ -106,7 +106,7 @@ public interface Locker {
      *
      * @param callback the callback
      */
-    public void refreshToken(Callback<LockerStatus> callback);
+    public void refreshToken(CsCallback<LockerStatus> callback);
 
 
     /**

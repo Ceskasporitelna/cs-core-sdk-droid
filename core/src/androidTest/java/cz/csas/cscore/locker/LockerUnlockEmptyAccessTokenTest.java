@@ -6,10 +6,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import cz.csas.cscore.LockerTest;
-import cz.csas.cscore.client.rest.Callback;
-import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.CsCallback;
 import cz.csas.cscore.error.CsLockerError;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.JudgeUtils;
 
 import static junit.framework.Assert.assertEquals;
@@ -24,7 +24,7 @@ public class LockerUnlockEmptyAccessTokenTest extends LockerTest {
     private final String X_JUDGE_SESSION_HEADER_UNLOCK_EMPTY_ACCESS_TOKEN = "core.locker.unlockEmptyAccesToken.session";
     private CountDownLatch mUnlockSignal;
     private State mState;
-    private CsRestError mError;
+    private CsSDKError mError;
 
     @Override
     public void setUp() {
@@ -50,14 +50,14 @@ public class LockerUnlockEmptyAccessTokenTest extends LockerTest {
     @Test
     public void testLockerUnlockEmptyAccessToken() {
 
-        mLocker.unlock(cz.csas.cscore.judge.Constants.PASSWORD_TEST, new Callback<RegistrationOrUnlockResponse>() {
+        mLocker.unlock(cz.csas.cscore.judge.Constants.PASSWORD_TEST, new CsCallback<RegistrationOrUnlockResponse>() {
             @Override
             public void success(RegistrationOrUnlockResponse registrationOrUnlockResponse, Response response) {
                 mUnlockSignal.countDown();
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 mError = error;
                 mUnlockSignal.countDown();
             }

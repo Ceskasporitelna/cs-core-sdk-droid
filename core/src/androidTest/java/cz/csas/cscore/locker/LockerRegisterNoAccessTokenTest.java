@@ -8,11 +8,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import cz.csas.cscore.LockerTest;
-import cz.csas.cscore.client.rest.Callback;
 import cz.csas.cscore.client.rest.CallbackBasic;
-import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
+import cz.csas.cscore.client.rest.CsCallback;
 import cz.csas.cscore.error.CsLockerError;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.Constants;
 import cz.csas.cscore.judge.JudgeUtils;
 
@@ -29,7 +29,7 @@ public class LockerRegisterNoAccessTokenTest extends LockerTest {
     private final String X_JUDGE_CASE_HEADER_REGISTER_NO_ACCESS_TOKEN = "core.locker.registerNoAccesToken.sanitized";
     private final String X_JUDGE_SESSION_HEADER_REGISTER_NO_ACCESS_TOKEN = "core.locker.registerNoAccesToken.session";
     private CountDownLatch mRegisterSignal;
-    private CsRestError mError;
+    private CsSDKError mError;
 
     @Override
     public void setUp() {
@@ -56,14 +56,14 @@ public class LockerRegisterNoAccessTokenTest extends LockerTest {
             public void failure() {
                 mRegisterSignal.countDown();
             }
-        }, new Callback<RegistrationOrUnlockResponse>() {
+        }, new CsCallback<RegistrationOrUnlockResponse>() {
             @Override
             public void success(RegistrationOrUnlockResponse registrationOrUnlockResponse, Response response) {
                 mRegisterSignal.countDown();
             }
 
             @Override
-            public void failure(CsRestError error) {
+            public void failure(CsSDKError error) {
                 mError = error;
                 mRegisterSignal.countDown();
             }

@@ -3,7 +3,7 @@ package cz.csas.cscore;
 import android.content.Context;
 
 import cz.csas.cscore.client.WebApiConfiguration;
-import cz.csas.cscore.client.rest.Callback;
+import cz.csas.cscore.client.rest.CsCallback;
 import cz.csas.cscore.locker.Locker;
 import cz.csas.cscore.locker.LockerConfig;
 import cz.csas.cscore.locker.LockerStatus;
@@ -122,7 +122,7 @@ public abstract class CoreSDK {
      * @param callback     the callback
      * @return the core sdk
      */
-    public abstract void refreshToken(String refreshToken, Callback<LockerStatus> callback);
+    public abstract void refreshToken(String refreshToken, CsCallback<LockerStatus> callback);
 
     /**
      * Is access token expired boolean.

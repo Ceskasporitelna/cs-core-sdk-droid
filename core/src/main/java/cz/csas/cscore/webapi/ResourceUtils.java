@@ -8,7 +8,7 @@ import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.EmptyResponse;
 import cz.csas.cscore.client.rest.android.MainThreadExecutor;
 import cz.csas.cscore.client.rest.client.Response;
-import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.client.rest.CsCallback;
 import cz.csas.cscore.error.CsCoreError;
 import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.utils.csjson.JsonElement;
