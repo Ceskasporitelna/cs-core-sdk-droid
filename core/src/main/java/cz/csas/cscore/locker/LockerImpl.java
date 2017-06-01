@@ -307,7 +307,7 @@ class LockerImpl implements Locker {
         mBackgroundQueue.addToQueue(new Runnable() {
             @Override
             public void run() {
-                if (getStatus().getState() == State.USER_UNLOCKED) {
+                if (getStatus().getState() == State.USER_UNLOCKED || mStatusManager.isVerifiedOffline()) {
                     mKeychainManager.clearVolatileKeys();
                     mStatusManager.setIsVerifiedOffline(false);
                     mStatusManager.setState();
