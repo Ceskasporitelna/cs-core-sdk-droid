@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2017-06-01
+
 ## Changed
 
 - Runtime errors in locker interface returned in callbacks due to bg queue
