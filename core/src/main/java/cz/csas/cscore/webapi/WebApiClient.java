@@ -17,7 +17,7 @@ import cz.csas.cscore.client.rest.RequestSignerImpl;
 import cz.csas.cscore.client.rest.android.BackgroundThreadExecutor;
 import cz.csas.cscore.client.rest.client.Response;
 import cz.csas.cscore.client.rest.converter.GsonConverter;
-import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.client.rest.CsCallback;
 import cz.csas.cscore.client.rest.mime.TypedFile;
 import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.locker.AccessToken;

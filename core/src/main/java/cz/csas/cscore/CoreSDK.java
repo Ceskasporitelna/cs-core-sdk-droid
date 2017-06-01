@@ -3,7 +3,7 @@ package cz.csas.cscore;
 import android.content.Context;
 
 import cz.csas.cscore.client.WebApiConfiguration;
-import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.client.rest.CsCallback;
 import cz.csas.cscore.locker.Locker;
 import cz.csas.cscore.locker.LockerConfig;
 import cz.csas.cscore.locker.LockerStatus;

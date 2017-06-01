@@ -10,7 +10,7 @@ import cz.csas.cscore.client.crypto.CryptoManager;
 import cz.csas.cscore.client.crypto.CryptoManagerImpl;
 import cz.csas.cscore.client.rest.CsRestError;
 import cz.csas.cscore.client.rest.client.Response;
-import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.client.rest.CsCallback;
 import cz.csas.cscore.error.CsCoreError;
 import cz.csas.cscore.error.CsLockerError;
 import cz.csas.cscore.locker.AccessToken;

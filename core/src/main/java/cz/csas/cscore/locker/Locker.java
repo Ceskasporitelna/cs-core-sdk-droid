@@ -3,7 +3,7 @@ package cz.csas.cscore.locker;
 import android.content.Context;
 
 import cz.csas.cscore.client.rest.CallbackBasic;
-import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.client.rest.CsCallback;
 
 /**
  * The interface Locker.

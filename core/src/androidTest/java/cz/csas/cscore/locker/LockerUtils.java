@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import cz.csas.cscore.client.crypto.CryptoManager;
 import cz.csas.cscore.client.rest.CallbackBasic;
 import cz.csas.cscore.client.rest.client.Response;
-import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.client.rest.CsCallback;
 import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.judge.Constants;
 

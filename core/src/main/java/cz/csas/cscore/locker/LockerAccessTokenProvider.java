@@ -3,7 +3,7 @@ package cz.csas.cscore.locker;
 import cz.csas.cscore.CoreSDK;
 import cz.csas.cscore.client.rest.CallbackWebApi;
 import cz.csas.cscore.client.rest.client.Response;
-import cz.csas.cscore.client.rest.mime.CsCallback;
+import cz.csas.cscore.client.rest.CsCallback;
 import cz.csas.cscore.error.CsAccessTokenProviderError;
 import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.logger.LogLevel;
