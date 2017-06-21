@@ -180,7 +180,7 @@ public class OAuthLoginActivity extends Activity {
         Integer customNavBarColor = mOAuthLoginActivityOptions.getCustomNavBarColor();
 
         if (customNavBarColor != null) {
-            setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, customNavBarColor)));
+            setBackground(mToolbar, new ColorDrawable(customNavBarColor));
         } else if (csNavBarColor == CsNavBarColor.WHITE) {
             setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.csasColorWhite)));
         } else {

@@ -12,16 +12,14 @@ public class OAuthLoginActivityOptions {
     private CsNavBarColor navBarColor;
     private Integer customNavBarColor;
 
-    /**
-     * Instantiates a new O auth login activity options.
-     *
-     * @param showLogo    the show logo
-     * @param navBarColor the nav bar color
-     */
-    public OAuthLoginActivityOptions(boolean showLogo, CsNavBarColor navBarColor, Integer customNavBarColor) {
+    public OAuthLoginActivityOptions(boolean showLogo, CsNavBarColor navBarColor){
         this.showLogo = showLogo;
         this.navBarColor = navBarColor;
-        customNavBarColor = customNavBarColor;
+    }
+
+    public OAuthLoginActivityOptions(boolean showLogo, Integer customNavBarColor){
+        this.showLogo = showLogo;
+        this.customNavBarColor = customNavBarColor;
     }
 
     /**
@@ -115,7 +113,7 @@ public class OAuthLoginActivityOptions {
          * @return the o auth login activity options
          */
         public OAuthLoginActivityOptions create() {
-            return new OAuthLoginActivityOptions(showLogo, navBarColor, customNavbarColor);
+            return customNavbarColor != null ? new OAuthLoginActivityOptions(showLogo, customNavbarColor) : new OAuthLoginActivityOptions(showLogo, navBarColor);
         }
 
     }
