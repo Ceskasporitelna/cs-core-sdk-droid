@@ -134,7 +134,8 @@ public class OAuthLoginActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (mLoginWebView.canGoBack())
+        // CS websites performs a redirect at the loaded url. History size > than 2 ensures that users exits on first back press
+        if (mLoginWebView.canGoBack() && mLoginWebView.copyBackForwardList().getSize() > 2)
             mLoginWebView.goBack();
         else {
             setResult(RESULT_CANCELED);
