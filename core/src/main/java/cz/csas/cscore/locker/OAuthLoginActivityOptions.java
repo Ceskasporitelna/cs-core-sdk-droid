@@ -9,7 +9,7 @@ package cz.csas.cscore.locker;
 public class OAuthLoginActivityOptions {
 
     private boolean showLogo;
-    private CsNavBarColor navBarColor;
+    private Integer navBarColor;
 
     /**
      * Instantiates a new O auth login activity options.
@@ -17,7 +17,7 @@ public class OAuthLoginActivityOptions {
      * @param showLogo    the show logo
      * @param navBarColor the nav bar color
      */
-    public OAuthLoginActivityOptions(boolean showLogo, CsNavBarColor navBarColor) {
+    public OAuthLoginActivityOptions(boolean showLogo, Integer navBarColor) {
         this.showLogo = showLogo;
         this.navBarColor = navBarColor;
     }
@@ -36,7 +36,7 @@ public class OAuthLoginActivityOptions {
      *
      * @param navBarColor the nav bar color
      */
-    public void setNavBarColor(CsNavBarColor navBarColor) {
+    public void setNavBarColor(Integer navBarColor) {
         this.navBarColor = navBarColor;
     }
 
@@ -54,7 +54,7 @@ public class OAuthLoginActivityOptions {
      *
      * @return the nav bar color
      */
-    public CsNavBarColor getNavBarColor() {
+    public Integer getNavBarColor() {
         return navBarColor;
     }
 
@@ -64,7 +64,7 @@ public class OAuthLoginActivityOptions {
     public static class Builder {
 
         private boolean showLogo = false;
-        private CsNavBarColor navBarColor = CsNavBarColor.DEFAULT;
+        private Integer navBarColor = null;
 
         /**
          * Sets show logo.
@@ -82,7 +82,7 @@ public class OAuthLoginActivityOptions {
          * @param navBarColor the nav bar color
          * @return the nav bar color
          */
-        public Builder setNavBarColor(CsNavBarColor navBarColor) {
+        public Builder setNavBarColor(Integer navBarColor) {
             this.navBarColor = navBarColor;
             return this;
         }
