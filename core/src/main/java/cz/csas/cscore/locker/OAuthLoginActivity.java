@@ -179,8 +179,10 @@ public class OAuthLoginActivity extends Activity {
         CsNavBarColor csNavBarColor = mOAuthLoginActivityOptions.getNavBarColor();
         if (csNavBarColor == CsNavBarColor.WHITE) {
             setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.csasColorWhite)));
-        } else {
+        } else if (csNavBarColor == CsNavBarColor.DEFAULT){
             setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.csasColorNavBar)));
+        } else {
+            setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, mOAuthLoginActivityOptions.getCustomNavBarColor())));
         }
 
         mToolbar.setLogo(ContextCompat.getDrawable(this, R.drawable.logo_csas));
