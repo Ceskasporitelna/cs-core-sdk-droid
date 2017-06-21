@@ -134,8 +134,7 @@ public class OAuthLoginActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        // CS websites performs a redirect at the loaded url. History size > than 2 ensures that users exits on first back press
-        if (mLoginWebView.canGoBack() && mLoginWebView.copyBackForwardList().getSize() > 2)
+        if (mLoginWebView.canGoBack())
             mLoginWebView.goBack();
         else {
             setResult(RESULT_CANCELED);
@@ -177,7 +176,11 @@ public class OAuthLoginActivity extends Activity {
 
     private void setNavBar() {
         CsNavBarColor csNavBarColor = mOAuthLoginActivityOptions.getNavBarColor();
-        if (csNavBarColor == CsNavBarColor.WHITE) {
+        Integer customNavBarColor = mOAuthLoginActivityOptions.getCustomNavBarColor();
+
+        if (customNavBarColor != null) {
+            setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, customNavBarColor)));
+        } else if (csNavBarColor == CsNavBarColor.WHITE) {
             setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.csasColorWhite)));
         } else {
             setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.csasColorNavBar)));
