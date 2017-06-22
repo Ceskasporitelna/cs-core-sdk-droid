@@ -10,16 +10,16 @@ public class OAuthLoginActivityOptions {
 
     private boolean showLogo;
     private CsNavBarColor navBarColor;
+    private Integer customNavBarColor;
 
-    /**
-     * Instantiates a new O auth login activity options.
-     *
-     * @param showLogo    the show logo
-     * @param navBarColor the nav bar color
-     */
-    public OAuthLoginActivityOptions(boolean showLogo, CsNavBarColor navBarColor) {
+    public OAuthLoginActivityOptions(boolean showLogo, CsNavBarColor navBarColor){
         this.showLogo = showLogo;
         this.navBarColor = navBarColor;
+    }
+
+    public OAuthLoginActivityOptions(boolean showLogo, Integer customNavBarColor){
+        this.showLogo = showLogo;
+        this.customNavBarColor = customNavBarColor;
     }
 
     /**
@@ -59,12 +59,21 @@ public class OAuthLoginActivityOptions {
     }
 
     /**
+     * Gets custom nav bar color
+     * @return the custom navbar color
+     */
+    public Integer getCustomNavBarColor() {
+        return customNavBarColor;
+    }
+
+    /**
      * The type Builder.
      */
     public static class Builder {
 
         private boolean showLogo = false;
         private CsNavBarColor navBarColor = CsNavBarColor.DEFAULT;
+        private Integer customNavbarColor;
 
         /**
          * Sets show logo.
@@ -88,12 +97,23 @@ public class OAuthLoginActivityOptions {
         }
 
         /**
+         * Sets custom nav bar color.
+         *
+         * @param customNavBarColor the custom nav bar color
+         * @return builder
+         */
+        public Builder setNavBarColor(int customNavBarColor) {
+            this.customNavbarColor = customNavBarColor;
+            return this;
+        }
+
+        /**
          * Create o auth login activity options.
          *
          * @return the o auth login activity options
          */
         public OAuthLoginActivityOptions create() {
-            return new OAuthLoginActivityOptions(showLogo, navBarColor);
+            return customNavbarColor != null ? new OAuthLoginActivityOptions(showLogo, customNavbarColor) : new OAuthLoginActivityOptions(showLogo, navBarColor);
         }
 
     }
