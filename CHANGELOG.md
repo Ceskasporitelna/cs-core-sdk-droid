@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## Fixed
+- LockerUI OAuth webview closed after back button pressed for the first time  
+
+## Added
+- Custom navigation bar color for OAuth login activity
+
 ## [1.2.0] - 2017-06-01
 
 ## Changed

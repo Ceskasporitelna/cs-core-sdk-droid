@@ -73,6 +73,16 @@ You can take `OAUTH_REQUEST_CODE` from Locker `Constants` or even rewrite it. (`
 ```
 
     /*
+     * Select `CsNavBarColor` and show logo
+     */
+    OAuthLoginActivityOptions oAuthLoginActivityOptions = new OAuthLoginActivityOptions.Builder().setNavBarColor(CsNavBarColor.WHITE).setShowLogo(true).create();
+
+    /*
+     * Or select custom navigation bar color and do not show logo
+     */
+    OAuthLoginActivityOptions oAuthLoginActivityOptions = new OAuthLoginActivityOptions.Builder().setNavBarColor(Color.parseColor("#3F51B5")).setShowLogo(false).create();
+ 
+    /*
      * OAuthLoginActivity styling
      */
     CoreSDK.getInstance().getLocker().setOAuthLoginActivityOptions(oAuthLoginActivityOptions);
