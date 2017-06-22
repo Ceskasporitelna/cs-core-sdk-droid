@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.1] - 2017-06-22
+
 ## Fixed
 - LockerUI OAuth webview closed after back button pressed for the first time  
 
