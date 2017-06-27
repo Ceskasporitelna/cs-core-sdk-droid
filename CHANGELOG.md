@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.2] - 2017-06-27
+
 ## Added
 - Progress bar to OAuthLoginActivity
 
