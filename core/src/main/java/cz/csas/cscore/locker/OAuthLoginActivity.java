@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -19,6 +20,7 @@ import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +45,7 @@ public class OAuthLoginActivity extends Activity {
     private final int EXPIRATION_TIME = 5 * 60 * 1000;
     private WebView mLoginWebView;
     private Toolbar mToolbar;
+    private ProgressBar mProgressBar;
     private String mUrlPath;
     private String mRedirectUrl;
     private String mJavascript;
@@ -76,6 +79,7 @@ public class OAuthLoginActivity extends Activity {
 
         mLoginWebView = (WebView) findViewById(R.id.vw_oauth_login_activity);
         mToolbar = (Toolbar) findViewById(R.id.toolbar_main_activity);
+        mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
         setNavBar();
 
         mLoginWebView.getSettings().setDomStorageEnabled(true);
@@ -102,6 +106,13 @@ public class OAuthLoginActivity extends Activity {
                 else
                     super.onReceivedSslError(view, handler, error);
             }
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                if (mProgressBar.getVisibility() != View.VISIBLE)
+                    mProgressBar.setVisibility(View.VISIBLE);
+            }
         });
         mLoginWebView.getSettings().setSupportMultipleWindows(true);
         mLoginWebView.setWebChromeClient(new WebChromeClient() {
@@ -117,6 +128,8 @@ public class OAuthLoginActivity extends Activity {
 
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
+                if (newProgress > 90)
+                    mProgressBar.setVisibility(View.INVISIBLE);
                 if (newProgress == 100) {
                     if (mJavascript != null && shouldExecuteTestingJavascript(mUrlPath)) {
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT)
