@@ -5,4 +5,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="csasColorNavBar">#C6DBF3</color>
     <color name="csasColorWhite">#FFFFFF</color>
+    <color name="csasColorProgressCenter">#6C9BB6</color>
+    <color name="csasColorProgressEnd">#135091</color>
 </resources>
