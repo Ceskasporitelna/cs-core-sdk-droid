@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.3] - 2017-07-19
+
 ## Fixed
 - Offline password hash encryption edge case error prevention
 - OAuthActivity webview reload on orientation change
