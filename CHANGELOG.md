@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## Fixed
+- Offline password hash encryption edge case error prevention
+- OAuthActivity webview reload on orientation change
+
+## Added
+- Offline authentication and locker config documentation
+
 ## [1.2.2] - 2017-06-27
 
 ## Added
