@@ -39,7 +39,7 @@ You can configure locker by calling `.useLocker()` on the CoreSDK. Example confi
 * `publicKey` - Public key used to encrypt the session key between you and the Locker server. **IMPORTANT**: Be sure to copy it exactly from the WebApi console as-is. Pay special attention to not include any spaces or carriage returns in the string.
 * `redirectUrlPath` - oAuth2 redirection url that your application has to be registered to handle. **IMPORTANT**: You have to register your URL scheme with the APP.
 * `scope` - Scope for the retrieved access token. If in doubt, use `/v1/netbanking`
-* `offlineAuthEnabled` - Locker offline authentication flag. Default value is `false`.
+* `offlineAuthEnabled` - Locker offline authentication (verification) flag. Default value is `false`.
 
 ### OAuth redireciton handling
 In order to successfully handle redirections from the Webview to your app during the Locker registration, you have to configure your app to properly handle it.
@@ -49,7 +49,9 @@ In order to successfully handle redirections from the Webview to your app during
 2. Put this line to your `AndroidManifest.xml` file.
 
 ```xml
-    <activity android:name="cz.csas.cscore.locker.OAuthLoginActivity" />
+    <activity
+            android:name="cz.csas.cscore.locker.OAuthLoginActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
 ```
 
 3. Catch activity result by adding these lines to your own activity, which called `Locker.register()` method. You need to customize following behaviour.
@@ -121,6 +123,9 @@ This code is then in `OAuthLoginActivity` executed. (This is already implemented
     }
 
 ```
+
+### Offline authentication
+Locker allows you to use also offline authentication to verify user. If `LockerConfig.setOfflineAuthEnabled()` is set, each user of your app has two attempts to verify himself in offline mode. In a case of two unsuccessful verification attempts, online authentication is required. Also after successful online authentication, offline verification attempts are renewed. There is no impact to actual Locker state, only `LockerStatus.isVerifiedOffline()` changes. 
 
 Now you are all set to use the locker!
 
