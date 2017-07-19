@@ -482,7 +482,8 @@ class LockerImpl implements Locker {
                     mKeychainManager.wipeOfflinePasswordHash();
                     // reset num of offline auth attempts to zero
                     mKeychainManager.storeNumOfOfflineAuthAttempts(0);
-                    if (mLockerConfig.isOfflineAuthEnabled())
+                    // check offline auth enabled and password validity, null or empty password cause crash
+                    if (mLockerConfig.isOfflineAuthEnabled() && password.getPassword() != null && !password.getPassword().isEmpty())
                         mKeychainManager.storeOfflinePasswordHash(password);
                 }
             });
@@ -508,21 +509,27 @@ class LockerImpl implements Locker {
             public void run() {
                 // increase num of offline auth attempts
                 mKeychainManager.storeNumOfOfflineAuthAttempts(mKeychainManager.retrieveNumOfOfflineAuthAttempts() + 1);
-                // get required offline password hash
-                String required = mKeychainManager.retrieveOfflinePasswordHash();
-                // create password object to include lock type
-                LockType lockType = getStatus().getLockType();
-                Password password = new Password(lockType, passwordString);
-                if (lockType == LockType.GESTURE || lockType == LockType.PIN)
-                    password.setPasswordSpaceSize(mKeychainManager.retrievePasswordInputSpaceSize());
-                // translate password to take into consideration the particular num of collisions
-                String translatedPassword = mCryptoManager.createOfflinePasswordWithCollision(password);
-                // generate actual offline password hash
-                String actual = mCryptoManager.encodeBase64(mCryptoManager.encryptPBKDF2(translatedPassword, getDFP() + getRandom()));
-
-                // compare it and return callback
+                // result for offline verification is false by default
+                boolean result = false;
+                // check password validity, null or empty password cause crash
+                if (passwordString != null && !passwordString.isEmpty()) {
+                    // get required offline password hash
+                    String required = mKeychainManager.retrieveOfflinePasswordHash();
+                    // create password object to include lock type
+                    LockType lockType = getStatus().getLockType();
+                    Password password = new Password(lockType, passwordString);
+                    if (lockType == LockType.GESTURE || lockType == LockType.PIN)
+                        password.setPasswordSpaceSize(mKeychainManager.retrievePasswordInputSpaceSize());
+                    // translate password to take into consideration the particular num of collisions
+                    String translatedPassword = mCryptoManager.createOfflinePasswordWithCollision(password);
+                    // generate actual offline password hash
+                    String actual = mCryptoManager.encodeBase64(mCryptoManager.encryptPBKDF2(translatedPassword, getDFP() + getRandom()));
+                    // compare actual and required passwords
+                    result = required != null && actual != null && required.equals(actual);
+                }
+                // return callback
                 // NO ACCESS TOKEN PROVIDED!
-                returnUnlockOffline((required != null && actual != null && required.equals(actual)), callback, error);
+                returnUnlockOffline(result, callback, error);
             }
         });
     }
