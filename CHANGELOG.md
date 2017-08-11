@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## Fixed
+- Disable saving password in webview
+
 ## [1.2.3] - 2017-07-19
 
 ## Fixed
