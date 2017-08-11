@@ -84,6 +84,12 @@ public class OAuthLoginActivity extends Activity {
 
         mLoginWebView.getSettings().setDomStorageEnabled(true);
         mLoginWebView.getSettings().setJavaScriptEnabled(true);
+
+        // This method was deprecated in API level 18. Saving passwords in WebView will not be supported in future versions.
+        // https://stackoverflow.com/a/32124224/4736216
+        mLoginWebView.getSettings().setSavePassword(false);
+        mLoginWebView.getSettings().setSaveFormData(false);
+
         mLoginWebView.setWebViewClient(new WebViewClient() {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.startsWith(mRedirectUrl)) {
