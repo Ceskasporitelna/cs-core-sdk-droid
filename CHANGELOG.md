@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.5] - 2017-09-06
+
 ## Fixed
 - Locker request signing
 
