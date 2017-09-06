@@ -1,7 +1,7 @@
 #!/bin/bash Start the emulator
 
 if "$1"; then
-    echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
+    echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
     emulator -avd test -no-window -wipe-data & EMULATOR_PID=$!
 else
     emulator -avd Nexus_6P_API_21 -no-window -wipe-data & EMULATOR_PID=$!
