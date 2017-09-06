@@ -40,13 +40,14 @@ public class RequestSignerImpl implements RequestSigner {
 
     @Override
     public void signRequest(String requestUrl, String requestData, List<Header> headers) {
+        String nonce = getNonce();
         String signature = generateSignatureForRequest(stripServer(requestUrl), requestData, nonce);
         List<Header> localHeaders = headers;
         if (localHeaders == null) {
             headers = localHeaders = new ArrayList<Header>(2);
         }
         localHeaders.add(new Header(REQUEST_SIGNING_SIGNATURE_HEADER_NAME, signature));
-        localHeaders.add(new Header(NONCE_HEADER_NAME, getNonce()));
+        localHeaders.add(new Header(NONCE_HEADER_NAME, nonce));
     }
 
     @Override
