@@ -20,6 +20,7 @@ import cz.csas.cscore.client.rest.android.BackgroundThreadExecutor;
 import cz.csas.cscore.client.rest.android.MainThreadExecutor;
 import cz.csas.cscore.client.rest.client.Response;
 import cz.csas.cscore.error.CsLockerError;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.logger.LogLevel;
 import cz.csas.cscore.logger.LogManager;
 import cz.csas.cscore.storage.KeychainManager;
@@ -254,6 +255,85 @@ class LockerImpl implements Locker {
     }
 
     @Override
+    public void unlockAfterMigration(final String password, final PasswordHashProcess passwordHashProcess, final LockerMigrationData data, final CsCallback<RegistrationOrUnlockResponse> callback) {
+        mBackgroundQueue.addToQueue(new Runnable() {
+            @Override
+            public void run() {
+                // store necessary information
+                String clientId = data.getClientId();
+                final LockType lockType = data.getLockType();
+                mKeychainManager.storeLocalEK(mCryptoManager.encodeSha256(getDFP(), mCryptoManager.generateRandomString()));
+                mKeychainManager.storeLockType(lockType);
+                mKeychainManager.storeCID(clientId);
+                mKeychainManager.storeDFP(data.getDeviceFingerprint());
+                mKeychainManager.storeOneTimePasswordKey(data.getOneTimePasswordKey());
+                // check for none lock type and save password as no lock password
+                if (lockType == LockType.NONE)
+                    mKeychainManager.storeNoLockPassword(password);
+                // check state for unregistered - client id already stored => state is registered
+                if (getStatus().getState() == State.USER_UNREGISTERED)
+                    callback.failure(new CsLockerError(CsLockerError.Kind.UNLOCK_FAILED));
+                // create unlock request using password hash process
+                UnlockRequestJson unlockRequestJson = new UnlockRequestJson(clientId, passwordHashProcess.hashPassword(password), mKeychainManager.retrieveDFP(), getNonce());
+                // call unlock
+                ((LockerRestService) mLockerClient.getService()).unlock(new LockerRequest(encryptSession(), encryptData(unlockRequestJson)), new Callback<LockerResponse>() {
+                    @Override
+                    public void success(LockerResponse lockerResponse, Response response) {
+                        final RegistrationOrUnlockResponseJson registrationOrUnlockResponseJson = decryptRegistrationOrUnlockData(lockerResponse.getData());
+                        if (registrationOrUnlockResponseJson.getRemainingAttempts() != null) {
+                            executeSuccessOnMainThreadAndFreeQueue(callback, new RegistrationOrUnlockResponse(null, registrationOrUnlockResponseJson.getRemainingAttempts()), response);
+                            mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "LOCKED", "Unlock failed. Remaining attempts: " + registrationOrUnlockResponseJson.getRemainingAttempts()), LogLevel.INFO);
+                        } else {
+                            // check access token
+                            final AccessToken accessToken;
+                            CsRestError error = checkAccessTokenPresenceOrReturnError(registrationOrUnlockResponseJson, response);
+                            if (error != null) {
+                                unregisterUserInternally();
+                                executeFailureOnMainThreadAndFreeQueue(callback, error);
+                                mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Unlock failed with error:" + error.getLocalizedMessage()), LogLevel.INFO);
+                                return;
+                            } else
+                                accessToken = new AccessToken(registrationOrUnlockResponseJson.getAccessToken(), registrationOrUnlockResponseJson.getAccessTokenExpiration());
+                            mKeychainManager.setEK(registrationOrUnlockResponseJson.getEncryptionKey().getBytes());
+                            mKeychainManager.storeAccessToken(accessToken);
+                            if (registrationOrUnlockResponseJson.getRefreshToken() != null)
+                                mKeychainManager.storeRefreshToken(registrationOrUnlockResponseJson.getRefreshToken());
+                            mStatusManager.setState();
+
+                            // change password on background to rehash it according to locker hash algorithm
+                            changePasswordWithCustomHashAlgorithm(password, new Password(lockType, password), passwordHashProcess, new CsCallback<PasswordResponse>() {
+                                @Override
+                                public void success(PasswordResponse passwordResponse, Response response) {
+                                    executeSuccessOnMainThreadAndFreeQueue(callback, new RegistrationOrUnlockResponse(accessToken, registrationOrUnlockResponseJson.getRemainingAttempts()), response);
+                                    mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNLOCKED", "Unlock by " + getStatus().getLockType() + " was succesful."), LogLevel.INFO);
+                                }
+
+                                @Override
+                                public void failure(CsSDKError error) {
+                                    executeFailureOnMainThreadAndFreeQueue(callback, (CsRestError) error);
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void failure(CsRestError error) {
+                        if (shouldUnregister(error)) {
+                            unregisterUserInternally();
+                            executeFailureOnMainThreadAndFreeQueue(callback, error);
+                            mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Unlock failed. No more attempts. User unregistered."), LogLevel.INFO);
+                        } else {
+                            executeFailureOnMainThreadAndFreeQueue(callback, error);
+                            mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "LOCKED", "Unlock failed with error: " + error.getLocalizedMessage()), LogLevel.INFO);
+                        }
+                    }
+                });
+
+            }
+        });
+    }
+
+    @Override
     public void unlockWithOneTimePassword(final CsCallback<RegistrationOrUnlockResponse> callback) {
         mBackgroundQueue.addToQueue(new Runnable() {
             @Override
@@ -329,41 +409,70 @@ class LockerImpl implements Locker {
             ((LockerRestService) mLockerClient.getService()).changePassword(new LockerRequest(encryptSession(), encryptData(passwordRequestJson)), new LockerCallback() {
                 @Override
                 public void success(LockerResponse lockerResponse, Response response) {
-                    PasswordResponseJson passwordResponseJson = null;
-                    if (lockerResponse != null) {
-                        passwordResponseJson = decryptPasswordData(lockerResponse.getData());
-                    }
-                    if (lockerResponse != null && passwordResponseJson.getRemainingAttempts() != null) {
-                        callback.success(new PasswordResponse(passwordResponseJson.getRemainingAttempts()), response);
-                        mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNLOCKED", "Password change failed. Remaining attempts: " + passwordResponseJson.getRemainingAttempts()), LogLevel.INFO);
-                    } else {
-                        mKeychainManager.wipeNoLockPassword();
-                        mKeychainManager.storePwdRandom(random);
-
-                        LockType lockType = newPassword.getLockType();
-                        mStatusManager.setLockType(lockType);
-                        if (lockType == LockType.GESTURE || lockType == LockType.PIN)
-                            mKeychainManager.storePasswordInputSpaceSize(newPassword.getPasswordSpaceSize());
-                        else if (lockType == LockType.NONE)
-                            mKeychainManager.storeNoLockPassword(newPassword.getPassword());
-                        storeOfflineHash(newPassword);
-                        callback.success(null, response);
-                        mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNLOCKED", "Password change with " + lockType + " was successful."), LogLevel.INFO);
-                    }
+                    changePasswordResultSuccess(newPassword, random, lockerResponse, response, callback);
                 }
 
                 @Override
                 public void failure(CsRestError error) {
-                    if (shouldUnregister(error)) {
-                        unregisterUserInternally();
-                        mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Password change failed. No more attempts. User unregistered."), LogLevel.INFO);
-                    } else
-                        mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNLOCKED", "Password change failed with error: " + error.getLocalizedMessage()), LogLevel.INFO);
-                    callback.failure(error);
+                    changePasswordResultFailure(error, callback);
                 }
             });
         } else
             callback.failure(new CsLockerError(CsLockerError.Kind.PASSWORD_CHANGE_FAILED));
+    }
+
+    private void changePasswordWithCustomHashAlgorithm(String password, final Password newPassword, PasswordHashProcess passwordHashProcess, final CsCallback<PasswordResponse> callback) {
+        if (getStatus().getState() == State.USER_UNLOCKED) {
+            if (getStatus().getLockType() == LockType.NONE)
+                password = mKeychainManager.retrieveNoLockPassword();
+            final String random = getNewRandom();
+            PasswordRequestJson passwordRequestJson = new PasswordRequestJson(mKeychainManager.retrieveCID(), passwordHashProcess.hashPassword(password), mCryptoManager.encodeSha256(newPassword.getPassword(), getDFP() + random), getDFP(), getNonce());
+            ((LockerRestService) mLockerClient.getService()).changePassword(new LockerRequest(encryptSession(), encryptData(passwordRequestJson)), new LockerCallback() {
+                @Override
+                public void success(LockerResponse lockerResponse, Response response) {
+                    changePasswordResultSuccess(newPassword, random, lockerResponse, response, callback);
+                }
+
+                @Override
+                public void failure(CsRestError error) {
+                    changePasswordResultFailure(error, callback);
+                }
+            });
+        } else
+            callback.failure(new CsLockerError(CsLockerError.Kind.PASSWORD_CHANGE_FAILED));
+    }
+
+    private void changePasswordResultSuccess(Password newPassword, String random, LockerResponse lockerResponse, Response response, CsCallback<PasswordResponse> callback) {
+        PasswordResponseJson passwordResponseJson = null;
+        if (lockerResponse != null) {
+            passwordResponseJson = decryptPasswordData(lockerResponse.getData());
+        }
+        if (lockerResponse != null && passwordResponseJson.getRemainingAttempts() != null) {
+            callback.success(new PasswordResponse(passwordResponseJson.getRemainingAttempts()), response);
+            mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNLOCKED", "Password change failed. Remaining attempts: " + passwordResponseJson.getRemainingAttempts()), LogLevel.INFO);
+        } else {
+            mKeychainManager.wipeNoLockPassword();
+            mKeychainManager.storePwdRandom(random);
+
+            LockType lockType = newPassword.getLockType();
+            mStatusManager.setLockType(lockType);
+            if (lockType == LockType.GESTURE || lockType == LockType.PIN)
+                mKeychainManager.storePasswordInputSpaceSize(newPassword.getPasswordSpaceSize());
+            else if (lockType == LockType.NONE)
+                mKeychainManager.storeNoLockPassword(newPassword.getPassword());
+            storeOfflineHash(newPassword);
+            callback.success(null, response);
+            mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNLOCKED", "Password change with " + lockType + " was successful."), LogLevel.INFO);
+        }
+    }
+
+    private void changePasswordResultFailure(CsRestError error, CsCallback<PasswordResponse> callback) {
+        if (shouldUnregister(error)) {
+            unregisterUserInternally();
+            mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Password change failed. No more attempts. User unregistered."), LogLevel.INFO);
+        } else
+            mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNLOCKED", "Password change failed with error: " + error.getLocalizedMessage()), LogLevel.INFO);
+        callback.failure(error);
     }
 
     @Override

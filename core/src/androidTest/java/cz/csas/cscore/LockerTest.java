@@ -33,7 +33,6 @@ public abstract class LockerTest {
 
     @Before
     public void setUp() {
-        mJudgeClient = new JudgeClient(Constants.TEST_BASE_URL);
         mCryptoManager = new CryptoManagerImpl();
 
         LockerConfig lockerConfig = new LockerConfig.Builder().setClientId(Constants.CLIENT_ID_TEST).setClientSecret(Constants.CLIENT_SECRET_TEST).setPublicKey(Constants.PUBLIC_KEY_TEST).setRedirectUrl(Constants.REDIRECT_URL_TEST).setScope(Constants.SCOPE_TEST).create();
@@ -41,6 +40,7 @@ public abstract class LockerTest {
         mCoreSDK.useContext(InstrumentationRegistry.getTargetContext());
         ((CoreSDKImpl) mCoreSDK).wipeKeychain().useWebApiKey(Constants.WEB_API_KEY_TEST).useEnvironment(new Environment(Constants.TEST_WEBAPI_BASE_URL, Constants.TEST_BASE_URL_OAUTH, true)).useLogger(new LogManagerImpl("TEST", LogLevel.DETAILED_DEBUG)).useLocker(lockerConfig);
         mLocker = mCoreSDK.getLocker();
+        mJudgeClient = new JudgeClient(Constants.TEST_BASE_URL, mCoreSDK.getLogger());
 
         Map<String, String> headers = new HashMap<>();
         headers.put(cz.csas.cscore.judge.Constants.XJUDGE_SESSION_HEADER_NAME, mXJudgeSessionHeader);

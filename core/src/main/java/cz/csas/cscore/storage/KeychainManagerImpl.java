@@ -37,6 +37,7 @@ public class KeychainManagerImpl implements KeychainManager {
 
     // Local EK encryption
     private final String CID_KEY = "cid_key";
+    private final String DFP_KEY = "dfp_key";
     private final String OTP_KEY = "otp_key";
     private final String CODE_KEY = "code_key";
     private final String NO_LOCK_PWD_KEY = "no_lock_pwd_key";
@@ -71,9 +72,16 @@ public class KeychainManagerImpl implements KeychainManager {
         mLogManager = CoreSDK.getInstance().getLogger();
     }
 
+    @Override
+    public void storeDFP(String deviceFingerprint) {
+        encryptToKeychain(DFP_KEY, deviceFingerprint, retrieveLocalEK());
+    }
+
     @SuppressLint("HardwareIds")
     @Override
     public String retrieveDFP() {
+        if (mSharedPreferencesKeychainCore.contains(DFP_KEY))
+            return decryptFromKeychain(DFP_KEY, retrieveLocalEK());
         return Settings.Secure.getString(mContext.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
