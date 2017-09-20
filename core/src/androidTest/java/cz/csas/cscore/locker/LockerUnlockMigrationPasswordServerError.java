@@ -61,6 +61,7 @@ public class LockerUnlockMigrationPasswordServerError extends LockerTest {
                         .setClientId(Constants.CID_TEST)
                         .setDeviceFingerprint(Constants.DFP_TEST)
                         .setOneTimePasswordKey(Constants.ONE_TIME_PASSWORD_KEY_TEST)
+                        .setEncryptionKey(Constants.SEK_BASE64_TEST)
                         .create(),
                 new CsCallback<RegistrationOrUnlockResponse>() {
                     @Override
