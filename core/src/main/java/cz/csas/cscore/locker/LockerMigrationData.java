@@ -10,12 +10,14 @@ public class LockerMigrationData {
 
     private String clientId;
     private String deviceFingerprint;
+    private String encryptionKey;
     private String oneTimePasswordKey;
     private String refreshToken;
 
-    public LockerMigrationData(String clientId, String deviceFingerprint, String oneTimePasswordKey, String refreshToken) {
+    public LockerMigrationData(String clientId, String deviceFingerprint, String encryptionKey, String oneTimePasswordKey, String refreshToken) {
         this.clientId = clientId;
         this.deviceFingerprint = deviceFingerprint;
+        this.encryptionKey = encryptionKey;
         this.oneTimePasswordKey = oneTimePasswordKey;
         this.refreshToken = refreshToken;
     }
@@ -23,6 +25,7 @@ public class LockerMigrationData {
     private LockerMigrationData(Builder builder) {
         this.clientId = builder.clientId;
         this.deviceFingerprint = builder.deviceFingerprint;
+        this.encryptionKey = builder.encryptionKey;
         this.oneTimePasswordKey = builder.oneTimePasswordKey;
         this.refreshToken = builder.refreshToken;
     }
@@ -59,9 +62,19 @@ public class LockerMigrationData {
         this.refreshToken = refreshToken;
     }
 
+
+    public String getEncryptionKey() {
+        return encryptionKey;
+    }
+
+    public void setEncryptionKey(String encryptionKey) {
+        this.encryptionKey = encryptionKey;
+    }
+
     public static class Builder {
         private String clientId;
         private String deviceFingerprint;
+        private String encryptionKey;
         private String oneTimePasswordKey;
         private String refreshToken;
 
@@ -72,6 +85,11 @@ public class LockerMigrationData {
 
         public Builder setDeviceFingerprint(String deviceFingerprint) {
             this.deviceFingerprint = deviceFingerprint;
+            return this;
+        }
+
+        public Builder setEncryptionKey(String encryptionKey) {
+            this.encryptionKey = encryptionKey;
             return this;
         }
 
