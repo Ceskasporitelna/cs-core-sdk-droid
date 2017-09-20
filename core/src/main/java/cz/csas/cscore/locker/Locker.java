@@ -72,10 +72,10 @@ public interface Locker {
      *
      * @param password            in raw format
      * @param passwordHashProcess providing you hash actual hash algorithm
-     * @param data locker migration data
-     * @param callback the callback
+     * @param data                locker migration data
+     * @param callback            the callback
      */
-    public void unlockAfterMigration(String password, PasswordHashProcess passwordHashProcess, LockerMigrationData data, CsCallback<RegistrationOrUnlockResponse> callback);
+    public void unlockAfterMigration(final Password password, final PasswordHashProcess passwordHashProcess, final LockerMigrationData data, final CsCallback<RegistrationOrUnlockResponse> callback);
 
     /**
      * Lock the user. This method does not communicate with server.

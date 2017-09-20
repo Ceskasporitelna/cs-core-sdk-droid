@@ -33,6 +33,10 @@ public class CsLockerError extends CsSDKError {
          */
         OTP_UNLOCK_FAILED("You are unregistered"),
         /**
+         * Thrown when migration fails.
+         */
+        MIGRATION_UNLOCK_FAILED("You are unregistered."),
+        /**
          * Thrown then lock operation is invoked for already locked or unregistered user.
          */
         LOCK_FAILED("You are not registered or already locked."),

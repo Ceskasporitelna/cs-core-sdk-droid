@@ -4,7 +4,7 @@ import cz.csas.cscore.client.rest.CsCallback;
 
 /**
  * Password hash process is required for
- * {@link Locker#unlockAfterMigration(String, PasswordHashProcess, LockerMigrationData, CsCallback)}
+ * {@link Locker#unlockAfterMigration(Password, PasswordHashProcess, LockerMigrationData, CsCallback)}
  * to handle custom password hashing before migration.
  *
  * @author Jan Hauser <jan.hauser@applifting.cz>

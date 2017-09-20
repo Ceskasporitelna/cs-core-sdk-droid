@@ -8,31 +8,23 @@ package cz.csas.cscore.locker;
  */
 public class LockerMigrationData {
 
-    private LockType lockType;
     private String clientId;
     private String deviceFingerprint;
     private String oneTimePasswordKey;
+    private String refreshToken;
 
-    public LockerMigrationData(LockType lockType, String clientId, String deviceFingerprint, String oneTimePasswordKey) {
-        this.lockType = lockType;
+    public LockerMigrationData(String clientId, String deviceFingerprint, String oneTimePasswordKey, String refreshToken) {
         this.clientId = clientId;
         this.deviceFingerprint = deviceFingerprint;
         this.oneTimePasswordKey = oneTimePasswordKey;
+        this.refreshToken = refreshToken;
     }
 
     private LockerMigrationData(Builder builder) {
-        this.lockType = builder.lockType;
         this.clientId = builder.clientId;
         this.deviceFingerprint = builder.deviceFingerprint;
         this.oneTimePasswordKey = builder.oneTimePasswordKey;
-    }
-
-    public LockType getLockType() {
-        return lockType;
-    }
-
-    public void setLockType(LockType lockType) {
-        this.lockType = lockType;
+        this.refreshToken = builder.refreshToken;
     }
 
     public String getClientId() {
@@ -59,16 +51,19 @@ public class LockerMigrationData {
         this.oneTimePasswordKey = oneTimePasswordKey;
     }
 
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
     public static class Builder {
-        private LockType lockType;
         private String clientId;
         private String deviceFingerprint;
         private String oneTimePasswordKey;
-
-        public Builder setLockType(LockType lockType) {
-            this.lockType = lockType;
-            return this;
-        }
+        private String refreshToken;
 
         public Builder setClientId(String clientId) {
             this.clientId = clientId;
@@ -82,6 +77,11 @@ public class LockerMigrationData {
 
         public Builder setOneTimePasswordKey(String oneTimePasswordKey) {
             this.oneTimePasswordKey = oneTimePasswordKey;
+            return this;
+        }
+
+        public Builder setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
             return this;
         }
 
