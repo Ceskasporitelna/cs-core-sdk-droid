@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.3.1] - 2017-09-20
+
 ## Fixed
 - Migration check for `UNREGISTERED` state
 - Encryption key necessary in migration data
