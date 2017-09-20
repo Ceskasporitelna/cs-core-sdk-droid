@@ -21,6 +21,8 @@ import cz.csas.cscore.client.rest.client.Response;
 import cz.csas.cscore.judge.Constants;
 import cz.csas.cscore.judge.JudgeClient;
 import cz.csas.cscore.judge.JudgeUtils;
+import cz.csas.cscore.logger.LogLevel;
+import cz.csas.cscore.logger.LogManagerImpl;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -50,7 +52,7 @@ public class RequestSigningTest  {
         webApiConfiguration.setPrivateSigningKey(Constants.PRIVATE_SIGNING_KEY_TEST);
         client = new LockerClient(webApiConfiguration);
         client.getRestAdapter().setNonce(Constants.NONCE_SIGNING);
-        JudgeUtils.setJudge(new JudgeClient(Constants.TEST_BASE_URL),Constants.X_JUDGE_CASE_HEADER_REGISTER,mXJudgeSessionHeader);
+        JudgeUtils.setJudge(new JudgeClient(Constants.TEST_BASE_URL, new LogManagerImpl("TEST", LogLevel.DETAILED_DEBUG)),Constants.X_JUDGE_CASE_HEADER_REGISTER,mXJudgeSessionHeader);
     }
 
     @Test

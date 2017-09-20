@@ -3,6 +3,7 @@ package cz.csas.cscore.judge;
 import cz.csas.cscore.client.RestService;
 import cz.csas.cscore.client.rest.CsRestAdapter;
 import cz.csas.cscore.client.rest.converter.GsonConverter;
+import cz.csas.cscore.logger.LogManager;
 import cz.csas.cscore.utils.csjson.CsJson;
 import cz.csas.cscore.utils.csjson.CsJsonBuilder;
 
@@ -13,7 +14,7 @@ import cz.csas.cscore.utils.csjson.CsJsonBuilder;
  * @since 20 /11/15.
  */
 public class JudgeClient {
-    
+
     private RestService judgeRestService;
 
     /**
@@ -21,7 +22,7 @@ public class JudgeClient {
      *
      * @param baseUrl the base url
      */
-    public JudgeClient(String baseUrl) {
+    public JudgeClient(String baseUrl, LogManager logManager) {
 
         CsJson csJson = new CsJsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
@@ -29,6 +30,7 @@ public class JudgeClient {
 
         CsRestAdapter judgeAdapter = new CsRestAdapter.Builder()
                 .setEndpoint(baseUrl)
+                .setLog(logManager)
                 .setConverter(new GsonConverter(csJson))
                 .build();
 

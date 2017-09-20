@@ -20,6 +20,7 @@ import cz.csas.cscore.client.rest.android.BackgroundThreadExecutor;
 import cz.csas.cscore.client.rest.android.MainThreadExecutor;
 import cz.csas.cscore.client.rest.client.Response;
 import cz.csas.cscore.error.CsLockerError;
+import cz.csas.cscore.error.CsSDKError;
 import cz.csas.cscore.logger.LogLevel;
 import cz.csas.cscore.logger.LogManager;
 import cz.csas.cscore.storage.KeychainManager;
@@ -254,6 +255,89 @@ class LockerImpl implements Locker {
     }
 
     @Override
+    public void unlockAfterMigration(final Password password, final PasswordHashProcess passwordHashProcess, final LockerMigrationData data, final CsCallback<RegistrationOrUnlockResponse> callback) {
+        mBackgroundQueue.addToQueue(new Runnable() {
+            @Override
+            public void run() {
+                // store necessary information
+                String clientId = data.getClientId();
+                final LockType lockType = password.getLockType();
+                String passwordString = password.getPassword();
+                mKeychainManager.storeLocalEK(mCryptoManager.encodeSha256(getDFP(), mCryptoManager.generateRandomString()));
+                mKeychainManager.storeLockType(lockType);
+                mKeychainManager.storeCID(clientId);
+                mKeychainManager.storeDFP(data.getDeviceFingerprint());
+                mKeychainManager.storeOneTimePasswordKey(data.getOneTimePasswordKey());
+                mKeychainManager.storeRefreshToken(data.getRefreshToken());
+                // check for none lock type and save password as no lock password
+                if (lockType == LockType.NONE)
+                    mKeychainManager.storeNoLockPassword(passwordString);
+                // check state for unregistered - client id already stored => state is registered
+                if (getStatus().getState() == State.USER_UNREGISTERED) {
+                    CsLockerError error = new CsLockerError(CsLockerError.Kind.MIGRATION_UNLOCK_FAILED);
+                    executeFailureOnMainThreadAndFreeQueue(callback, error);
+                    mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Migration unlock failed with error:" + error.getLocalizedMessage()), LogLevel.INFO);
+                }
+                // create unlock request using password hash process
+                UnlockRequestJson unlockRequestJson = new UnlockRequestJson(clientId, passwordHashProcess.hashPassword(passwordString), mKeychainManager.retrieveDFP(), getNonce());
+                // call unlock
+                ((LockerRestService) mLockerClient.getService()).unlock(new LockerRequest(encryptSession(), encryptData(unlockRequestJson)), new Callback<LockerResponse>() {
+                    @Override
+                    public void success(LockerResponse lockerResponse, Response response) {
+                        final RegistrationOrUnlockResponseJson registrationOrUnlockResponseJson = decryptRegistrationOrUnlockData(lockerResponse.getData());
+                        // check remaining attempts and access token presence
+                        CsSDKError error;
+                        if (registrationOrUnlockResponseJson.getRemainingAttempts() != null)
+                            error = new CsLockerError(CsLockerError.Kind.MIGRATION_UNLOCK_FAILED);
+                        else
+                            error = checkAccessTokenPresenceOrReturnError(registrationOrUnlockResponseJson, response);
+                        // unregister if error found
+                        if (error != null) {
+                            unregisterUserInternally();
+                            executeFailureOnMainThreadAndFreeQueue(callback, error);
+                            mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Migration unlock failed with error:" + error.getLocalizedMessage()), LogLevel.INFO);
+                            return;
+                        }
+                        final AccessToken accessToken = new AccessToken(registrationOrUnlockResponseJson.getAccessToken(), registrationOrUnlockResponseJson.getAccessTokenExpiration());
+                        mKeychainManager.setEK(registrationOrUnlockResponseJson.getEncryptionKey().getBytes());
+                        mKeychainManager.storeAccessToken(accessToken);
+                        if (registrationOrUnlockResponseJson.getRefreshToken() != null)
+                            mKeychainManager.storeRefreshToken(registrationOrUnlockResponseJson.getRefreshToken());
+                        mStatusManager.setState();
+
+                        // change password on background to rehash it according to locker hash algorithm
+                        changePasswordWithCustomHashAlgorithm(password, passwordHashProcess, new CsCallback<PasswordResponse>() {
+                            @Override
+                            public void success(PasswordResponse passwordResponse, Response response) {
+                                executeSuccessOnMainThreadAndFreeQueue(callback, new RegistrationOrUnlockResponse(accessToken, registrationOrUnlockResponseJson.getRemainingAttempts()), response);
+                                mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNLOCKED", "Migration unlock by " + getStatus().getLockType() + " was successful."), LogLevel.INFO);
+                            }
+
+                            @Override
+                            public void failure(CsSDKError error) {
+                                // log messages already done
+                                unregisterUserInternally();
+                                executeFailureOnMainThreadAndFreeQueue(callback, error);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void failure(CsRestError error) {
+                        if (shouldUnregister(error))
+                            mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Migration unlock failed with error:" + error.getLocalizedMessage() + ". User unregistered."), LogLevel.INFO);
+                        else
+                            mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Migration unlock failed with error:" + error.getLocalizedMessage() + ". Internet connection failed, please try again later. "), LogLevel.INFO);
+                        unregisterUserInternally();
+                        executeFailureOnMainThreadAndFreeQueue(callback, error);
+                    }
+                });
+
+            }
+        });
+    }
+
+    @Override
     public void unlockWithOneTimePassword(final CsCallback<RegistrationOrUnlockResponse> callback) {
         mBackgroundQueue.addToQueue(new Runnable() {
             @Override
@@ -364,6 +448,51 @@ class LockerImpl implements Locker {
             });
         } else
             callback.failure(new CsLockerError(CsLockerError.Kind.PASSWORD_CHANGE_FAILED));
+    }
+
+    private void changePasswordWithCustomHashAlgorithm(final Password password, PasswordHashProcess passwordHashProcess, final CsCallback<PasswordResponse> callback) {
+        if (getStatus().getState() == State.USER_UNLOCKED) {
+            String passwordString = password.getPassword();
+            final String random = getNewRandom();
+            PasswordRequestJson passwordRequestJson = new PasswordRequestJson(mKeychainManager.retrieveCID(), passwordHashProcess.hashPassword(passwordString), mCryptoManager.encodeSha256(passwordString, getDFP() + random), getDFP(), getNonce());
+            ((LockerRestService) mLockerClient.getService()).changePassword(new LockerRequest(encryptSession(), encryptData(passwordRequestJson)), new LockerCallback() {
+                @Override
+                public void success(LockerResponse lockerResponse, Response response) {
+                    PasswordResponseJson passwordResponseJson = null;
+                    if (lockerResponse != null)
+                        passwordResponseJson = decryptPasswordData(lockerResponse.getData());
+                    if (lockerResponse != null && passwordResponseJson.getRemainingAttempts() != null) {
+                        unregisterUserInternally();
+                        CsLockerError error = new CsLockerError(CsLockerError.Kind.MIGRATION_UNLOCK_FAILED);
+                        callback.failure(error);
+                        mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Migration change password failed with error:" + error.getLocalizedMessage()), LogLevel.INFO);
+                    } else {
+                        mKeychainManager.wipeNoLockPassword();
+                        mKeychainManager.storePwdRandom(random);
+
+                        LockType lockType = password.getLockType();
+                        mStatusManager.setLockType(lockType);
+                        if (lockType == LockType.GESTURE || lockType == LockType.PIN)
+                            mKeychainManager.storePasswordInputSpaceSize(password.getPasswordSpaceSize());
+                        else if (lockType == LockType.NONE)
+                            mKeychainManager.storeNoLockPassword(password.getPassword());
+                        storeOfflineHash(password);
+                        callback.success(null, response);
+                        mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNLOCKED", "Migration password change with " + lockType + " was successful."), LogLevel.INFO);
+                    }
+                }
+
+                @Override
+                public void failure(CsRestError error) {
+                    if (shouldUnregister(error))
+                        mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Migration change password failed. with error:" + error.getLocalizedMessage()), LogLevel.INFO);
+                    else
+                        mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Migration change password failed with error:" + error.getLocalizedMessage() + ". Please try again later. "), LogLevel.INFO);
+                    callback.failure(error);
+                }
+            });
+        } else
+            callback.failure(new CsLockerError(CsLockerError.Kind.MIGRATION_UNLOCK_FAILED));
     }
 
     @Override
@@ -659,7 +788,7 @@ class LockerImpl implements Locker {
         });
     }
 
-    private void executeFailureOnMainThreadAndFreeQueue(final CsCallback callback, final CsRestError error) {
+    private void executeFailureOnMainThreadAndFreeQueue(final CsCallback callback, final CsSDKError error) {
         mMainThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {

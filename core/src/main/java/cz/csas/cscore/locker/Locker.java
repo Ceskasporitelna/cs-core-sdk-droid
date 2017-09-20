@@ -67,6 +67,17 @@ public interface Locker {
     public void unlockWithOneTimePassword(CsCallback<RegistrationOrUnlockResponse> callback);
 
     /**
+     * Unlock after migration. This method will unlock you using the provided data and should be
+     * used as the migration bridge to unlock without unnecessary new user registration.
+     *
+     * @param password            in raw format
+     * @param passwordHashProcess providing you hash actual hash algorithm
+     * @param data                locker migration data
+     * @param callback            the callback
+     */
+    public void unlockAfterMigration(final Password password, final PasswordHashProcess passwordHashProcess, final LockerMigrationData data, final CsCallback<RegistrationOrUnlockResponse> callback);
+
+    /**
      * Lock the user. This method does not communicate with server.
      *
      * @param callback the callback

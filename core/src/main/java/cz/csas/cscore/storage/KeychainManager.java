@@ -12,6 +12,9 @@ import cz.csas.cscore.locker.Password;
  */
 public interface KeychainManager {
 
+
+    public void storeDFP(String deviceFingerprint);
+
     /**
      * Retrieve device fingerprint string.
      *

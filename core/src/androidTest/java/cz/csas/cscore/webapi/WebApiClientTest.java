@@ -10,6 +10,8 @@ import cz.csas.cscore.client.WebApiConfiguration;
 import cz.csas.cscore.client.WebApiConfigurationImpl;
 import cz.csas.cscore.judge.Constants;
 import cz.csas.cscore.judge.JudgeClient;
+import cz.csas.cscore.logger.LogLevel;
+import cz.csas.cscore.logger.LogManagerImpl;
 
 /**
  * The type Web api client test.
@@ -46,7 +48,7 @@ public abstract class WebApiClientTest {
     public void setUp() {
         mWebApiConfiguration = new WebApiConfigurationImpl("TEST_API_KEY", new Environment(Constants.TEST_BASE_URL, Constants.TEST_BASE_URL_OAUTH, false), "cs-CZ", null);
         mXJudgeSessionHeader = WEBAPI_SESSION_HEADER;//UUID.randomUUID().toString();
-        mJudgeClient = new JudgeClient(Constants.TEST_BASE_URL);
+        mJudgeClient = new JudgeClient(Constants.TEST_BASE_URL, new LogManagerImpl("TEST", LogLevel.DETAILED_DEBUG));
         mTestWebApiClient = new TestWebApiClient(mWebApiConfiguration);
     }
 }
