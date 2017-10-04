@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## Fixed
+- Fix theme colors
+
 ## [1.3.2] - 2017-10-04
 
 ## Fixed 
