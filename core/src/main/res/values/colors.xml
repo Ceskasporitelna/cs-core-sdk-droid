@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="csCoreColorPrimary">#3F51B5</color>
-    <color name="csCoreColorPrimaryDark">#303F9F</color>
+    <color name="csCoreColorPrimary">#135091</color>
+    <color name="csCoreColorPrimaryDark">#004466</color>
     <color name="csCoreColorAccent">#FF4081</color>
     <color name="csCoreColorNavBar">#C6DBF3</color>
     <color name="csCoreColorWhite">#FFFFFF</color>
