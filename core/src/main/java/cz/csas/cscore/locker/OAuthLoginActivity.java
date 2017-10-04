@@ -201,9 +201,9 @@ public class OAuthLoginActivity extends Activity {
         if (customNavBarColor != null) {
             setBackground(mToolbar, new ColorDrawable(customNavBarColor));
         } else if (csNavBarColor == CsNavBarColor.WHITE) {
-            setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.csasColorWhite)));
+            setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.csCoreColorWhite)));
         } else {
-            setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.csasColorNavBar)));
+            setBackground(mToolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.csCoreColorNavBar)));
         }
 
         mToolbar.setLogo(ContextCompat.getDrawable(this, R.drawable.logo_csas));

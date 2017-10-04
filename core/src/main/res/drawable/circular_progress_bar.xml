@@ -16,10 +16,10 @@
             android:height="48dip" />
 
         <gradient
-            android:centerColor="@color/csasColorProgressCenter"
+            android:centerColor="@color/csCoreColorProgressCenter"
             android:centerY="0.50"
-            android:endColor="@color/csasColorProgressEnd"
-            android:startColor="@color/csasColorWhite"
+            android:endColor="@color/csCoreColorProgressEnd"
+            android:startColor="@color/csCoreColorWhite"
             android:type="sweep"
             android:useLevel="false" />
     </shape>

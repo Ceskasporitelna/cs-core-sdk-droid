@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="csasColorNavBar">#C6DBF3</color>
-    <color name="csasColorWhite">#FFFFFF</color>
-    <color name="csasColorProgressCenter">#6C9BB6</color>
-    <color name="csasColorProgressEnd">#135091</color>
+    <color name="csCoreColorPrimary">#3F51B5</color>
+    <color name="csCoreColorPrimaryDark">#303F9F</color>
+    <color name="csCoreColorAccent">#FF4081</color>
+    <color name="csCoreColorNavBar">#C6DBF3</color>
+    <color name="csCoreColorWhite">#FFFFFF</color>
+    <color name="csCoreColorProgressCenter">#6C9BB6</color>
+    <color name="csCoreColorProgressEnd">#135091</color>
 </resources>

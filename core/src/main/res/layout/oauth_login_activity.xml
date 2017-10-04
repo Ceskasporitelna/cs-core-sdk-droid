@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:layout_alignParentTop="true"
-        android:background="@color/csasColorWhite"
+        android:background="@color/csCoreColorWhite"
         android:paddingLeft="20dip"
         android:paddingStart="20dip"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"

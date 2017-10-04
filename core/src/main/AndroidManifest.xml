@@ -1,3 +1,12 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="cs.cz.cscore">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cs.cz.cscore">
+
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <application android:supportsRtl="true">
+        <activity
+            android:name="cz.csas.cscore.locker.OAuthLoginActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@style/CoreSDKTheme" />
+    </application>
 </manifest>

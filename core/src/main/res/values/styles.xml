@@ -1,2 +1,7 @@
 <resources>
+    <style name="CoreSDKTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/csCoreColorPrimary</item>
+        <item name="colorPrimaryDark">@color/csCoreColorPrimaryDark</item>
+        <item name="colorAccent">@color/csCoreColorAccent</item>
+    </style>
 </resources>

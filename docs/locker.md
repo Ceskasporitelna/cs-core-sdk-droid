@@ -46,15 +46,7 @@ In order to successfully handle redirections from the Webview to your app during
 
 1. Define the url scheme part *(that's the thing before the `://`)* and host *(that's the thing after the `://`)* of your `redirectUrl` via LockerConfig file.
 
-2. Put this line to your `AndroidManifest.xml` file.
-
-```xml
-    <activity
-            android:name="cz.csas.cscore.locker.OAuthLoginActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
-```
-
-3. Catch activity result by adding these lines to your own activity, which called `Locker.register()` method. You need to customize following behaviour.
+2. Catch activity result by adding these lines to your own activity, which called `Locker.register()` method. You need to customize following behaviour.
 
 ```
     @Override
