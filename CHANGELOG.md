@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.3.2] - 2017-10-04
+
 ## Fixed 
 - OAuth2 activity settings and theme
 
