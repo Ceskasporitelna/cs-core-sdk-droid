@@ -605,7 +605,7 @@ class LockerImpl implements Locker {
                 mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "OAuth2", "Request has been send with url: " + url), LogLevel.DEBUG);
                 ((Activity) context).startActivityForResult(intent, Constants.OAUTH_REQUEST_CODE);
             } else
-                throw new CsLockerError(CsLockerError.Kind.BAD_CONTEXT);
+                mCallbackRegister.failure(new CsLockerError(CsLockerError.Kind.BAD_CONTEXT));
         }
     }
 
