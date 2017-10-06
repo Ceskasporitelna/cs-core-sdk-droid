@@ -214,7 +214,11 @@ public class KeychainManagerImpl implements KeychainManager {
 
     @Override
     public void storeOfflinePasswordHash(Password password) {
-        encryptToKeychain(OFFLINE_PWD_KEY, mCryptoManager.encodeBase64(mCryptoManager.encryptPBKDF2(mCryptoManager.createOfflinePasswordWithCollision(password), retrieveDFP() + retrievePwdRandom())), retrieveLocalEK());
+        String passwordString = password.getPassword();
+        // check password before translation
+        String translatedPassword = passwordString != null && !passwordString.isEmpty() ? mCryptoManager.createOfflinePasswordWithCollision(password) : null;
+        if (translatedPassword != null)
+            encryptToKeychain(OFFLINE_PWD_KEY, mCryptoManager.encodeBase64(mCryptoManager.encryptPBKDF2(translatedPassword, retrieveDFP() + retrievePwdRandom())), retrieveLocalEK());
     }
 
     @Override
