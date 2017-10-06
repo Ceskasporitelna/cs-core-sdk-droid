@@ -186,7 +186,7 @@ public class CryptoManagerImpl implements CryptoManager {
             randomStringBuilder.append(tempChar);
         }
         outputRandom = randomStringBuilder.toString();
-        if (outputRandom == null)
+        if (outputRandom == null || outputRandom.isEmpty())
             outputRandom = generateRandomString();
         return outputRandom;
     }
