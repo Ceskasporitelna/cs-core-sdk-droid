@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## Added 
+- Add non-symmetric gesture grid compatibility
+
+## Fixed
+- Safe check for offline password storing
+- Empty check for random string generation
+- Safe throw callback error for locker registration
+
 ## [1.3.3] - 2017-10-04
 
 ## Fixed
