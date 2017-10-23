@@ -7,6 +7,7 @@ import android.provider.Settings;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.StringTokenizer;
 import java.util.UUID;
 
 import cz.csas.cscore.CoreSDK;
@@ -157,15 +158,27 @@ public class KeychainManagerImpl implements KeychainManager {
     }
 
     @Override
-    public void storePasswordInputSpaceSize(Integer size) {
-        encryptToKeychain(GESTURE_GRID_SIZE_KEY, String.valueOf(size), retrieveLocalEK());
+    public void storePasswordInputSpaceSize(Integer[] size) {
+        if (size != null) {
+            StringBuilder builder = new StringBuilder();
+            for (Integer aSize : size) {
+                builder.append(aSize).append(",");
+            }
+            encryptToKeychain(GESTURE_GRID_SIZE_KEY, builder.toString(), retrieveLocalEK());
+        }
     }
 
     @Override
-    public Integer retrievePasswordInputSpaceSize() {
-        String size = decryptFromKeychain(GESTURE_GRID_SIZE_KEY, retrieveLocalEK());
-        if (size != null && !size.equals(""))
-            return Integer.parseInt(size);
+    public Integer[] retrievePasswordInputSpaceSize() {
+        String sizeString = decryptFromKeychain(GESTURE_GRID_SIZE_KEY, retrieveLocalEK());
+        if (sizeString != null && !sizeString.equals("")) {
+            StringTokenizer tokenizer = new StringTokenizer(sizeString, ",");
+            Integer[] size = new Integer[10];
+            for (int i = 0; i < 10; i++) {
+                size[i] = Integer.parseInt(tokenizer.nextToken());
+            }
+            return size;
+        }
         return null;
     }
 
@@ -214,7 +227,11 @@ public class KeychainManagerImpl implements KeychainManager {
 
     @Override
     public void storeOfflinePasswordHash(Password password) {
-        encryptToKeychain(OFFLINE_PWD_KEY, mCryptoManager.encodeBase64(mCryptoManager.encryptPBKDF2(mCryptoManager.createOfflinePasswordWithCollision(password), retrieveDFP() + retrievePwdRandom())), retrieveLocalEK());
+        String passwordString = password.getPassword();
+        // check password before translation
+        String translatedPassword = passwordString != null && !passwordString.isEmpty() ? mCryptoManager.createOfflinePasswordWithCollision(password) : null;
+        if (translatedPassword != null)
+            encryptToKeychain(OFFLINE_PWD_KEY, mCryptoManager.encodeBase64(mCryptoManager.encryptPBKDF2(translatedPassword, retrieveDFP() + retrievePwdRandom())), retrieveLocalEK());
     }
 
     @Override

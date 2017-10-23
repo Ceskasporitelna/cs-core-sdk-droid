@@ -119,14 +119,14 @@ public interface KeychainManager {
      *
      * @param size the size
      */
-    public void storePasswordInputSpaceSize(Integer size);
+    public void storePasswordInputSpaceSize(Integer[] size);
 
     /**
      * Retrieve gesture grid size int.
      *
      * @return the Integer
      */
-    public Integer retrievePasswordInputSpaceSize();
+    public Integer[] retrievePasswordInputSpaceSize();
 
     /**
      * Sets ek.

@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.security.PublicKey;
-import java.util.Arrays;
 
 import cz.csas.cscore.client.crypto.CryptoManager;
 import cz.csas.cscore.client.crypto.CryptoManagerImpl;
@@ -118,15 +117,15 @@ public class CryptoManagerTest {
         assertEquals(translatedPinPasswordLong, translatedPinPasswordConflictingLong);
 
         // Gesture test
-        Password gesturePassword = new Password(LockType.GESTURE, "0-0&0-1&0-2&2-2&1-2", 3);
-        Password gesturePasswordConflicting = new Password(LockType.GESTURE, "0-0&0-1&2-2&2-1&1-2", 3);
+        Password gesturePassword = new Password(LockType.GESTURE, "0-0&0-1&0-2&2-2&1-2", new Integer[]{3, 3});
+        Password gesturePasswordConflicting = new Password(LockType.GESTURE, "0-0&0-1&2-2&2-1&1-2", new Integer[]{3, 3});
         String translatedGesturePassword = cryptoManager.createOfflinePasswordWithCollision(gesturePassword);
         String translatedGesturePasswordConflicting = cryptoManager.createOfflinePasswordWithCollision(gesturePasswordConflicting);
         assertEquals("122", translatedGesturePassword);
         assertEquals(translatedGesturePassword, translatedGesturePasswordConflicting);
 
         // More complicated 5x5 gesture (10 points)
-        Password gesturePasswordComplicated = new Password(LockType.GESTURE, "4-4&2-1&0-2&0-0&0-1&1-2&3-3&3-2&0-4&2-4", 5);
+        Password gesturePasswordComplicated = new Password(LockType.GESTURE, "4-4&2-1&0-2&0-0&0-1&1-2&3-3&3-2&0-4&2-4", new Integer[]{5, 5});
         String translatedGesturePasswordComplicated = cryptoManager.createOfflinePasswordWithCollision(gesturePasswordComplicated);
         assertEquals("6745979547", translatedGesturePasswordComplicated);
     }
