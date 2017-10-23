@@ -245,7 +245,7 @@ public class CryptoManagerImpl implements CryptoManager {
         return null;
     }
 
-    private String createOfflineGesturePasswordWithCollision(String password, int gridSize) {
+    private String createOfflineGesturePasswordWithCollision(String password, Integer[] gridSize) {
         // Split gesture code
         String[] passwordArray = password.split("&");
         Integer[] passwordDigits = new Integer[passwordArray.length];
@@ -259,7 +259,7 @@ public class CryptoManagerImpl implements CryptoManager {
 
             // Find out the value for each cell point as column + 1 + columnMax * row
             passwordDigits[i] = (Integer.parseInt(pointDef[1]) + 1)
-                    + gridSize * Integer.parseInt(pointDef[0]);
+                    + gridSize[1] * Integer.parseInt(pointDef[0]);
 
             // Find smaller digits already used in password code before index
             int smallerDigitsUsed = getSmallerDigitsUsed(passwordDigits, i);
@@ -270,7 +270,7 @@ public class CryptoManagerImpl implements CryptoManager {
                         - smallerDigitsUsed));
         }
 
-        BigInteger modulo = getFactorial(gridSize * gridSize).divide(BigInteger.valueOf(1000));
+        BigInteger modulo = getFactorial(gridSize[0] * gridSize[1]).divide(BigInteger.valueOf(1000));
 
         /*
          * - modulo = (k^2)!/1000 where k is the gesture grid size

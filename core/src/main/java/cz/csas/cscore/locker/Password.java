@@ -12,7 +12,7 @@ public class Password {
 
     private String password;
 
-    private Integer passwordSpaceSize;
+    private Integer[] passwordSpaceSize;
 
     /**
      * Instantiates a new Password. You can choose you LockType (PIN,GESTURE,NONE) and define your
@@ -30,11 +30,11 @@ public class Password {
     /**
      * Instantiates a new Password.
      *
-     * @param lockType the lock type
-     * @param password the password
+     * @param lockType          the lock type
+     * @param password          the password
      * @param passwordSpaceSize the grid size
      */
-    public Password(LockType lockType, String password, Integer passwordSpaceSize) {
+    public Password(LockType lockType, String password, Integer[] passwordSpaceSize) {
         this.lockType = lockType;
         this.password = password;
         this.passwordSpaceSize = passwordSpaceSize;
@@ -63,7 +63,7 @@ public class Password {
      *
      * @param passwordSpaceSize the grid size
      */
-    public void setPasswordSpaceSize(Integer passwordSpaceSize) {
+    public void setPasswordSpaceSize(Integer[] passwordSpaceSize) {
         this.passwordSpaceSize = passwordSpaceSize;
     }
 
@@ -72,7 +72,7 @@ public class Password {
      *
      * @return the password space size
      */
-    public Integer getPasswordSpaceSize() {
+    public Integer[] getPasswordSpaceSize() {
         return passwordSpaceSize;
     }
 }
