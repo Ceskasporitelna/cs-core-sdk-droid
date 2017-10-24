@@ -49,6 +49,11 @@ public class Password {
         return lockType;
     }
 
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     /**
      * Gets password.
      *

@@ -52,10 +52,15 @@ public class LockerUnlockMigrationBadPassword extends LockerTest {
     public void testUnlockMigrationBadPassword() {
 
         mLocker.unlockAfterMigration(new Password(LockType.FINGERPRINT, Constants.PASSWORD_TEST),
-                new PasswordHashProcess() {
+                new PasswordMigrationProcess() {
                     @Override
                     public String hashPassword(String password) {
                         return mCryptoManager.encodeSha256(password, Constants.DFP_TEST);
+                    }
+
+                    @Override
+                    public String transformPassword(String oldPassword) {
+                        return oldPassword;
                     }
                 },
                 new LockerMigrationData.Builder()

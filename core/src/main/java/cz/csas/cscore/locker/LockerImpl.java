@@ -255,7 +255,7 @@ class LockerImpl implements Locker {
     }
 
     @Override
-    public void unlockAfterMigration(final Password password, final PasswordHashProcess passwordHashProcess, final LockerMigrationData data, final CsCallback<RegistrationOrUnlockResponse> callback) {
+    public void unlockAfterMigration(final Password password, final PasswordMigrationProcess passwordMigrationProcess, final LockerMigrationData data, final CsCallback<RegistrationOrUnlockResponse> callback) {
         State state = getStatus().getState();
         if (state != State.USER_UNREGISTERED) {
             callback.failure(new CsLockerError(CsLockerError.Kind.MIGRATION_UNLOCK_FAILED));
@@ -285,7 +285,7 @@ class LockerImpl implements Locker {
                         mLogManager.log(StringUtils.logLine(LOCKER_MODULE, "UNREGISTERED", "Migration unlock failed with error:" + error.getLocalizedMessage()), LogLevel.INFO);
                     }
                     // create unlock request using password hash process
-                    UnlockRequestJson unlockRequestJson = new UnlockRequestJson(clientId, passwordHashProcess.hashPassword(passwordString), mKeychainManager.retrieveDFP(), getNonce());
+                    UnlockRequestJson unlockRequestJson = new UnlockRequestJson(clientId, passwordMigrationProcess.hashPassword(passwordString), mKeychainManager.retrieveDFP(), getNonce());
                     // call unlock
                     ((LockerRestService) mLockerClient.getService()).unlock(new LockerRequest(encryptSession(), encryptData(unlockRequestJson)), new Callback<LockerResponse>() {
                         @Override
@@ -293,8 +293,9 @@ class LockerImpl implements Locker {
                             final RegistrationOrUnlockResponseJson registrationOrUnlockResponseJson = decryptRegistrationOrUnlockData(lockerResponse.getData());
                             // check remaining attempts and access token presence
                             CsSDKError error;
-                            if (registrationOrUnlockResponseJson.getRemainingAttempts() != null)
-                                error = new CsLockerError(CsLockerError.Kind.MIGRATION_UNLOCK_FAILED);
+                            String remainingAttempts = registrationOrUnlockResponseJson.getRemainingAttempts();
+                            if (remainingAttempts != null)
+                                error = new CsLockerError(CsLockerError.Kind.MIGRATION_UNLOCK_FAILED, "Remaining attempts: " + remainingAttempts);
                             else
                                 error = checkAccessTokenPresenceOrReturnError(registrationOrUnlockResponseJson, response);
                             // unregister if error found
@@ -312,7 +313,7 @@ class LockerImpl implements Locker {
                             mStatusManager.setState();
 
                             // change password on background to rehash it according to locker hash algorithm
-                            changePasswordWithCustomHashAlgorithm(password, passwordHashProcess, new CsCallback<PasswordResponse>() {
+                            changePasswordWithTransformationAndCustomHashAlgorithm(password, passwordMigrationProcess, new CsCallback<PasswordResponse>() {
                                 @Override
                                 public void success(PasswordResponse passwordResponse, Response response) {
                                     executeSuccessOnMainThreadAndFreeQueue(callback, new RegistrationOrUnlockResponse(accessToken, registrationOrUnlockResponseJson.getRemainingAttempts()), response);
@@ -457,11 +458,16 @@ class LockerImpl implements Locker {
             callback.failure(new CsLockerError(CsLockerError.Kind.PASSWORD_CHANGE_FAILED));
     }
 
-    private void changePasswordWithCustomHashAlgorithm(final Password password, PasswordHashProcess passwordHashProcess, final CsCallback<PasswordResponse> callback) {
+    private void changePasswordWithTransformationAndCustomHashAlgorithm(final Password password, PasswordMigrationProcess passwordMigrationProcess, final CsCallback<PasswordResponse> callback) {
         if (getStatus().getState() == State.USER_UNLOCKED) {
-            String passwordString = password.getPassword();
+            LockType lockType = password.getLockType();
+            // save old password to variable
+            String oldPasswordString = password.getPassword();
+            // transform password for gesture and pin lock types
+            if (lockType == LockType.GESTURE || lockType == LockType.PIN)
+                password.setPassword(passwordMigrationProcess.transformPassword(oldPasswordString));
             final String random = getNewRandom();
-            PasswordRequestJson passwordRequestJson = new PasswordRequestJson(mKeychainManager.retrieveCID(), passwordHashProcess.hashPassword(passwordString), mCryptoManager.encodeSha256(passwordString, getDFP() + random), getDFP(), getNonce());
+            PasswordRequestJson passwordRequestJson = new PasswordRequestJson(mKeychainManager.retrieveCID(), passwordMigrationProcess.hashPassword(oldPasswordString), mCryptoManager.encodeSha256(password.getPassword(), getDFP() + random), getDFP(), getNonce());
             ((LockerRestService) mLockerClient.getService()).changePassword(new LockerRequest(encryptSession(), encryptData(passwordRequestJson)), new LockerCallback() {
                 @Override
                 public void success(LockerResponse lockerResponse, Response response) {
