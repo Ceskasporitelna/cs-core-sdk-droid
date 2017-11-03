@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.5.1] - 2017-11-03
+
 ## Fixed
 - Fix storing gesture/pin password size.
 
