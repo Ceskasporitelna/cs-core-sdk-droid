@@ -161,8 +161,12 @@ public class KeychainManagerImpl implements KeychainManager {
     public void storePasswordInputSpaceSize(Integer[] size) {
         if (size != null) {
             StringBuilder builder = new StringBuilder();
-            for (Integer aSize : size) {
-                builder.append(aSize).append(",");
+            int length = size.length;
+            for (int i = 0; i < length; i++) {
+                builder.append(size[i]);
+                if (length > 1 && i != length - 1)
+                    // save gesture grid size with "," delimiter
+                    builder.append(",");
             }
             encryptToKeychain(GESTURE_GRID_SIZE_KEY, builder.toString(), retrieveLocalEK());
         }
@@ -172,12 +176,17 @@ public class KeychainManagerImpl implements KeychainManager {
     public Integer[] retrievePasswordInputSpaceSize() {
         String sizeString = decryptFromKeychain(GESTURE_GRID_SIZE_KEY, retrieveLocalEK());
         if (sizeString != null && !sizeString.equals("")) {
-            StringTokenizer tokenizer = new StringTokenizer(sizeString, ",");
-            Integer[] size = new Integer[10];
-            for (int i = 0; i < 10; i++) {
-                size[i] = Integer.parseInt(tokenizer.nextToken());
-            }
-            return size;
+            // check is gesture grid size, then parse with delimiter ","
+            if (sizeString.contains(",")) {
+                StringTokenizer tokenizer = new StringTokenizer(sizeString, ",");
+                Integer[] size = new Integer[2];
+                for (int i = 0; i < 2; i++) {
+                    size[i] = Integer.parseInt(tokenizer.nextToken());
+                }
+                return size;
+            } else
+                // otherwise pin password size, no delimiter
+                return new Integer[]{Integer.parseInt(sizeString)};
         }
         return null;
     }
