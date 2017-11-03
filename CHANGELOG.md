@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.5.0] - 2017-11-03
+
 ## Fixed
 - Add transformation function for gesture/pin password migration, to apply Locker SDK gesture/pin password hash format.
 
