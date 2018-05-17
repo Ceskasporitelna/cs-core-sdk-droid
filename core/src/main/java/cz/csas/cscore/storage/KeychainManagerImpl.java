@@ -184,9 +184,11 @@ public class KeychainManagerImpl implements KeychainManager {
                     size[i] = Integer.parseInt(tokenizer.nextToken());
                 }
                 return size;
-            } else
+            } else {
+                Integer size = Integer.parseInt(sizeString);
                 // otherwise pin password size, no delimiter
-                return new Integer[]{Integer.parseInt(sizeString)};
+                return new Integer[]{size, size};
+            }
         }
         return null;
     }
