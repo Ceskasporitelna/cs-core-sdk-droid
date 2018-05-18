@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.5.2] - 2018-05-18
+
 ## Fixed
 - Issue with crashing app when gesture used (#16)
 
