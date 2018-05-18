@@ -54,6 +54,7 @@ before_deploy:
   - ./gradlew install
 
 deploy:
+  skip_cleanup: true
   provider: bintray
   file: ./descriptor.json
   user: $BINTRAY_USER
