@@ -372,7 +372,9 @@ public class KeychainManagerImpl implements KeychainManager {
 
     private void encryptToKeychain(String key, String value, byte[] ek) {
         if (value != null) {
-            mSharedPreferencesKeychainCore.edit().putString(key, mCryptoManager.encodeBase64(mCryptoManager.encryptAES(value, ek, null))).apply();
+            byte[] encryptedValue = mCryptoManager.encryptAES(value, ek, null);
+            if (encryptedValue != null)
+                mSharedPreferencesKeychainCore.edit().putString(key, mCryptoManager.encodeBase64(encryptedValue)).apply();
         }
     }
 
