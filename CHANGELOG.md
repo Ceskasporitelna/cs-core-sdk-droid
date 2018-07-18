@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## Fixed
+- Issue with crashing during encryption to keychain (#17)
+
 ## [1.5.2] - 2018-05-18
 
 ## Fixed
