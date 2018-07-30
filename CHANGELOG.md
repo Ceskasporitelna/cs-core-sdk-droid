@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- (TOOLING) Update tooling to remove potential vulnerability
+
 ## [1.5.3] - 2018-07-18
 
 ## Fixed
