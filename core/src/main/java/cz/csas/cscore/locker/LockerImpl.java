@@ -605,6 +605,7 @@ class LockerImpl implements Locker {
                 Intent intent = new Intent(context, OAuthLoginActivity.class);
                 intent.putExtra(Constants.OAUTH_LOGIN_ACTIVITY_OPTIONS_EXTRA, mCsJson.toJson(mOAuthLoginActivityOptions));
                 intent.putExtra(Constants.OAUTH_URL_EXTRA, url);
+                intent.putExtra(Constants.CS_IDENTITA_REDIRECT_URL_EXTRA, mLockerConfig.getCsIdentitaRedirectUrl());
                 intent.putExtra(Constants.TESTING_JS_EXTRA, mJavascript);
                 intent.putExtra(Constants.REDIRECT_URL_EXTRA, mLockerConfig.getRedirectUrl());
                 intent.putExtra(Constants.ALLOW_UNTRUSTED_CERTIFICATES_EXTRA, getConfigManager().getEnvironment().isAllowUntrustedCertificates());

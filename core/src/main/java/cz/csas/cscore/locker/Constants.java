@@ -42,4 +42,9 @@ public class Constants {
      * The constant OAUTH_REQUEST_CODE.
      */
     public static final int OAUTH_REQUEST_CODE = 100;
+
+    /**
+     * The constant CS_IDENTITA_REDIRECT_URL_EXTRA.
+     */
+    public static final String CS_IDENTITA_REDIRECT_URL_EXTRA = "cs_identita_redirect_url_extra";
 }
