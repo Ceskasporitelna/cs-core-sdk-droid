@@ -102,7 +102,6 @@ public class OAuthLoginActivity extends Activity {
                     intent.addCategory("android.intent.category.BROWSABLE");
                     intent.setData(Uri.parse(url));
                     startActivity(intent);
-                    setResult(RESULT_OK, intent);
 
                 } else if(url.startsWith(mRedirectUrl)) {
                     Bundle bundle = new Bundle();
