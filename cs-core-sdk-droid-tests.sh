@@ -1,11 +1,7 @@
 #!/bin/bash Start the emulator
 
-if "$1"; then
-    echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
-    emulator -avd test -no-window -wipe-data & EMULATOR_PID=$!
-else
-    emulator -avd Nexus_6P_API_21 -no-window -wipe-data & EMULATOR_PID=$!
-fi
+echo no | android create avd --force -n test -t android-24 --abi armeabi-v7a
+emulator -avd test -no-skin -no-window & EMULATOR_PID=$!
 
 # Wait for Android to finish booting
 WAIT_CMD="adb wait-for-device shell getprop init.svc.bootanim"
@@ -20,7 +16,7 @@ echo "Emulator is ready"
 adb shell input keyevent 82
 
 # Run the tests
-OUTPUT="$(./gradlew connectedAndroidTest test -i --stacktrace )"
+OUTPUT="$(./gradlew connectedAndroidTest test )"
 if echo $OUTPUT | grep -q 'BUILD SUCCESSFUL'; then
 	echo "ANDROID TESTS SUCCESSFUL"
 else

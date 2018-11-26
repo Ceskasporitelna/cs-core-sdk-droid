@@ -4,6 +4,10 @@
 
 ### Fixed
 - (TOOLING) Update tooling to remove potential vulnerability
+- Update build files for API 28
+
+### Added
+- Support redirect for Case mobile app (CS Identity)
 
 ## [1.5.3] - 2018-07-18
 
