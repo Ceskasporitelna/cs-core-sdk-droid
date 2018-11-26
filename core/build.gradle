@@ -5,12 +5,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 28
         versionCode readVersionCode()
         versionName readVersionName()
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -18,23 +18,19 @@ android {
     }
 
     libraryVariants.all { variant ->
-        variant.outputs.each { output ->
-            def file = output.outputFile
-            output.outputFile =
-                    new File(file.parent,
-                            file.name.replace("core", "cs-core-sdk").replace(".aar", "-" + defaultConfig.versionName + ".aar"))
-
+        variant.outputs.all {
+            outputFileName = "cs-core-sdk-" + defaultConfig.versionName + ".aar"
         }
     }
 
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile 'junit:junit:4.12'
-    androidTestCompile 'com.android.support.test:rules:0.5'
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.3.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:rules:0.5'
+    testImplementation 'junit:junit:4.12'
 }
 
 // maven pom specs
@@ -148,7 +144,7 @@ def incrementBuildVersion(def type = "patch") {
     def descriptor = new JsonSlurper().parse(descriptorFile)
     def versionName = major + "." + minor + "." + patch
     def projectName = descriptor.files[0].uploadPattern.split("/")[2];
-    def path = "cz/csas/" + projectName + "/" +versionName + "/";
+    def path = "cz/csas/" + projectName + "/" + versionName + "/";
 
     descriptor.version.name = versionName
     descriptor.version.vcs_tag = versionName

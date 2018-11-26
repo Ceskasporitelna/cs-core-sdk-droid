@@ -23,21 +23,21 @@ public class LockerConfig {
      */
     private String clientId;
     private String clientSecret;
-    private String csIdentitaRedirectUrl;
+    private String caseMobileRedirectUrl;
     private String redirectUrl;
     private String scope;
     private String publicKey;
     private boolean offlineAuthEnabled = false;
     private Environment environment;
 
-    private LockerConfig(String clientId, String clientSecret, String redirectUrl, String scope, String publicKey, boolean offlineAuthEnabled, String csIdentitaRedirectUrl) {
+    private LockerConfig(String clientId, String clientSecret, String redirectUrl, String scope, String publicKey, boolean offlineAuthEnabled, String caseMobileRedirectUrl) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUrl = redirectUrl;
         this.scope = scope;
         this.publicKey = publicKey;
         this.offlineAuthEnabled = offlineAuthEnabled;
-        this.csIdentitaRedirectUrl = csIdentitaRedirectUrl;
+        this.caseMobileRedirectUrl = caseMobileRedirectUrl;
     }
 
     /**
@@ -114,12 +114,12 @@ public class LockerConfig {
 
 
     /**
-     * Gets CS Identita redirect url.
+     * Gets case mobile redirect url.
      *
-     * @return the CS Identita redirect url.
+     * @return the case mobile redirect url.
      */
-    public String getCsIdentitaRedirectUrl() {
-        return csIdentitaRedirectUrl;
+    public String getCaseMobileRedirectUrl() {
+        return caseMobileRedirectUrl;
     }
 
 
@@ -132,7 +132,7 @@ public class LockerConfig {
 
         private String clientSecret;
 
-        private String csIdentitaRedirectUrl;
+        private String caseMobileRedirectUrl;
 
         private String redirectUrl;
 
@@ -208,13 +208,12 @@ public class LockerConfig {
         }
 
         /**
-
-         * Sets CS Identita redirect url.
+         * Sets case mobile redirect url.
          *
-         * @param csIdentitaRedirectUrl the CS Identita redirect url.
+         * @param caseMobileRedirectUrl the case mobile redirect url.
          */
-        public  Builder setCsIdentitaRedirectUrl(String csIdentitaRedirectUrl) {
-            this.csIdentitaRedirectUrl = csIdentitaRedirectUrl;
+        public Builder setCaseMobileRedirectUrl(String caseMobileRedirectUrl) {
+            this.caseMobileRedirectUrl = caseMobileRedirectUrl;
             return this;
         }
 
@@ -225,7 +224,7 @@ public class LockerConfig {
          * @return the locker config
          */
         public LockerConfig create() {
-            return new LockerConfig(clientId, clientSecret, redirectUrl, scope, publicKey, offlineAuthEnabled, csIdentitaRedirectUrl);
+            return new LockerConfig(clientId, clientSecret, redirectUrl, scope, publicKey, offlineAuthEnabled, caseMobileRedirectUrl);
         }
 
 

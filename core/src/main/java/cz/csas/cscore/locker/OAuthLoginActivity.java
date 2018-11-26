@@ -48,7 +48,7 @@ public class OAuthLoginActivity extends Activity {
     private ProgressBar mProgressBar;
     private String mUrlPath;
     private String mRedirectUrl;
-    private String mCSIdentitaRedirectUrl;
+    private String mCaseMobileRedirectUrl;
     private String mJavascript;
     private OAuthLoginActivityOptions mOAuthLoginActivityOptions;
     private boolean mAllowUntrustedCertificates;
@@ -72,7 +72,7 @@ public class OAuthLoginActivity extends Activity {
         Bundle extras = getIntent().getExtras();
         mUrlPath = extras.getString(Constants.OAUTH_URL_EXTRA);
         mRedirectUrl = extras.getString(Constants.REDIRECT_URL_EXTRA);
-        mCSIdentitaRedirectUrl = extras.getString(Constants.CS_IDENTITA_REDIRECT_URL_EXTRA);
+        mCaseMobileRedirectUrl = extras.getString(Constants.CASE_MOBILE_URL_EXTRA);
         mJavascript = extras.getString(Constants.TESTING_JS_EXTRA);
         mOAuthLoginActivityOptions = new CsJson().fromJson(extras.getString(Constants.OAUTH_LOGIN_ACTIVITY_OPTIONS_EXTRA), OAuthLoginActivityOptions.class);
         mAllowUntrustedCertificates = extras.getBoolean(Constants.ALLOW_UNTRUSTED_CERTIFICATES_EXTRA);
@@ -94,16 +94,15 @@ public class OAuthLoginActivity extends Activity {
 
         mLoginWebView.setWebViewClient(new WebViewClient() {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.contains(mCSIdentitaRedirectUrl)) {
+                if (url.contains(mCaseMobileRedirectUrl)) {
                     Bundle bundle = new Bundle();
                     bundle.putString(Constants.CODE_EXTRA, url);
                     Intent intent = new Intent();
-                    intent.setAction("android.intent.action.VIEW");
-                    intent.addCategory("android.intent.category.BROWSABLE");
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.addCategory(Intent.CATEGORY_BROWSABLE);
                     intent.setData(Uri.parse(url));
                     startActivity(intent);
-
-                } else if(url.startsWith(mRedirectUrl)) {
+                } else if (url.startsWith(mRedirectUrl)) {
                     Bundle bundle = new Bundle();
                     bundle.putString(Constants.CODE_EXTRA, url);
                     Intent resultIntent = new Intent();
