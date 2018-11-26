@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.6.0] - 2018-11-26
+
 ### Fixed
 - (TOOLING) Update tooling to remove potential vulnerability
 - Update build files for API 28
