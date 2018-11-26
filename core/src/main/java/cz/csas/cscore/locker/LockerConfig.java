@@ -23,19 +23,21 @@ public class LockerConfig {
      */
     private String clientId;
     private String clientSecret;
+    private String csIdentitaRedirectUrl;
     private String redirectUrl;
     private String scope;
     private String publicKey;
     private boolean offlineAuthEnabled = false;
     private Environment environment;
 
-    private LockerConfig(String clientId, String clientSecret, String redirectUrl, String scope, String publicKey, boolean offlineAuthEnabled) {
+    private LockerConfig(String clientId, String clientSecret, String redirectUrl, String scope, String publicKey, boolean offlineAuthEnabled, String csIdentitaRedirectUrl) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUrl = redirectUrl;
         this.scope = scope;
         this.publicKey = publicKey;
         this.offlineAuthEnabled = offlineAuthEnabled;
+        this.csIdentitaRedirectUrl = csIdentitaRedirectUrl;
     }
 
     /**
@@ -110,6 +112,17 @@ public class LockerConfig {
         this.environment = environment;
     }
 
+
+    /**
+     * Gets CS Identita redirect url.
+     *
+     * @return the CS Identita redirect url.
+     */
+    public String getCsIdentitaRedirectUrl() {
+        return csIdentitaRedirectUrl;
+    }
+
+
     /**
      * The type Builder.
      */
@@ -118,6 +131,8 @@ public class LockerConfig {
         private String clientId;
 
         private String clientSecret;
+
+        private String csIdentitaRedirectUrl;
 
         private String redirectUrl;
 
@@ -193,12 +208,24 @@ public class LockerConfig {
         }
 
         /**
+
+         * Sets CS Identita redirect url.
+         *
+         * @param csIdentitaRedirectUrl the CS Identita redirect url.
+         */
+        public  Builder setCsIdentitaRedirectUrl(String csIdentitaRedirectUrl) {
+            this.csIdentitaRedirectUrl = csIdentitaRedirectUrl;
+            return this;
+        }
+
+
+        /**
          * Create locker config.
          *
          * @return the locker config
          */
         public LockerConfig create() {
-            return new LockerConfig(clientId, clientSecret, redirectUrl, scope, publicKey, offlineAuthEnabled);
+            return new LockerConfig(clientId, clientSecret, redirectUrl, scope, publicKey, offlineAuthEnabled, csIdentitaRedirectUrl);
         }
 
 
