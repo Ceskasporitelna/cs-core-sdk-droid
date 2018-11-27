@@ -19,7 +19,7 @@ android {
 
     libraryVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "cs-core-sdk-" + defaultConfig.versionName + ".aar"
+            outputFileName = "cs-core-sdk-release-" + defaultConfig.versionName + ".aar"
         }
     }
 

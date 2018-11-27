@@ -94,7 +94,7 @@ public class OAuthLoginActivity extends Activity {
 
         mLoginWebView.setWebViewClient(new WebViewClient() {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.contains(mCaseMobileRedirectUrl)) {
+                if (mCaseMobileRedirectUrl != null && url.contains(mCaseMobileRedirectUrl)) {
                     Bundle bundle = new Bundle();
                     bundle.putString(Constants.CODE_EXTRA, url);
                     Intent intent = new Intent();
@@ -102,7 +102,7 @@ public class OAuthLoginActivity extends Activity {
                     intent.addCategory(Intent.CATEGORY_BROWSABLE);
                     intent.setData(Uri.parse(url));
                     startActivity(intent);
-                } else if (url.startsWith(mRedirectUrl)) {
+                } else if (mRedirectUrl != null && url.startsWith(mRedirectUrl)) {
                     Bundle bundle = new Bundle();
                     bundle.putString(Constants.CODE_EXTRA, url);
                     Intent resultIntent = new Intent();
