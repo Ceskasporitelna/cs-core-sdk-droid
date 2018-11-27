@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.6.1] - 2018-11-27
+
 ### Fixed
 - safety nullchecks for redirect uris
 
